@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magic Numbers | MLB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <div class="headerInner">
+    <div class="left">
+      <i class="ti ti-trophy titleIcon" aria-hidden="true"></i>
+      <div class="titleBlock">
+        <span class="title">MLB Magic Numbers</span>
+        <span class="subtitle">Live clinching scenarios &middot; MLB Stats API</span>
+      </div>
+    </div>
+    <div class="right">
+      <span class="livePulseDot" aria-hidden="true"></span>
+      <span class="livePulseLabel">Live</span>
+      <button id="refresh-btn" class="refreshBtn" title="Refresh data"><i class="ti ti-refresh"></i> Refresh</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabBar">
+  <button class="tabPill active" data-view="league">League Standings</button>
+  <button class="tabPill" data-view="division">Division Standings</button>
+</nav>
+
+<main id="app" class="main">
+  <div id="status" class="status">Loading live standings&hellip;</div>
+  <div id="league-view" class="view"></div>
+  <div id="division-view" class="view" hidden></div>
+
+  <section class="legendCard">
+    <h2 class="legendTitle">MLB Playoff Qualifications</h2>
+    <p class="legendText">Six teams from each league qualify for the playoffs: the three division winners (seeded 1&ndash;3 by record, with the top two earning a first-round bye), plus the next three best teams by record regardless of division (the wild cards).</p>
+    <ul class="legend-list">
+      <li><span class="pill pillGreen">Clinched division</span></li>
+      <li><span class="pill pillAmber">Clinched wild-card berth</span></li>
+      <li><span class="pill pillRed">Eliminated from the playoffs</span></li>
+    </ul>
+    <p class="legendNote">A number in the grid is the <strong>magic number</strong>: the combined number of wins (by the row team) and losses (by the column team) needed for the row team to guarantee finishing ahead of the column team. &ldquo;NC&rdquo; (not clinched) means the column team currently has the better record, so no magic number applies in that direction yet.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <span id="last-updated"></span>
+  <span class="sep">&middot;</span>
+  <span class="disclaimer">Unofficial fan project &mdash; data from the MLB Stats API, not affiliated with MLB or Playoff Magic</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
