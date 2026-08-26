@@ -168,18 +168,19 @@ function gbDisplay(v) {
   return v;
 }
 
+function logoUrl(team) {
+  return `https://www.mlbstatic.com/team-logos/${team.id}.svg`;
+}
+
 /** Build the ordered row list for a league's League Standings page:
- *  1) the 3 division leaders (East, Central, West)
- *  2) the top 3 non-leaders by wild card rank
- *  3) everyone else by wild card rank
+ *  1) the 3 division leaders, by winning % descending
+ *  2) the top 3 wild-card teams, by winning % descending
+ *  3) everyone else, by winning % descending
  */
 function buildLeagueOrder(leagueTeams) {
-  const leaders = leagueTeams
-    .filter((t) => t.divisionLeader)
-    .sort((a, b) => a.divisionSort - b.divisionSort);
-  const rest = leagueTeams
-    .filter((t) => !t.divisionLeader)
-    .sort((a, b) => (a.wildCardRank || 99) - (b.wildCardRank || 99));
+  const byRecord = (a, b) => b.winPct - a.winPct || b.wins - a.wins || a.losses - b.losses;
+  const leaders = leagueTeams.filter((t) => t.divisionLeader).sort(byRecord);
+  const rest = leagueTeams.filter((t) => !t.divisionLeader).sort(byRecord);
   return [...leaders, ...rest];
 }
 
@@ -188,7 +189,9 @@ function buildDivisionOrder(divisionTeams) {
 }
 
 function renderMatrixCell(rowTeam, colTeam) {
-  if (rowTeam.id === colTeam.id) return '<td class="diag"></td>';
+  if (rowTeam.id === colTeam.id) {
+    return `<td class="diag"><img class="team-logo-diag" src="${logoUrl(rowTeam)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"></td>`;
+  }
   if (isAheadOf(rowTeam, colTeam)) {
     const mn = magicNumber(rowTeam, colTeam);
     if (mn <= 0) return '<td class="magic-num">&ndash;</td>';
@@ -197,24 +200,44 @@ function renderMatrixCell(rowTeam, colTeam) {
   return '<td class="nc">NC</td>';
 }
 
-function teamCell(team) {
-  return `<td class="team-cell">${team.abbr}${statusTag(team)}<span class="team-name">${team.name}</span></td>`;
+function teamCell(team, showFullName) {
+  const nameSpan = showFullName ? `<span class="team-name">${team.name}</span>` : "";
+  return `<td class="team-cell" title="${team.name}"><img class="team-logo" src="${logoUrl(team)}" alt="" loading="lazy" onerror="this.style.display='none'">${team.abbr}${statusTag(team)}${nameSpan}</td>`;
+}
+
+/** Build a <colgroup> so the table is forced to fit the container width (no horizontal
+ *  scrolling): the team column and each stat column get a fixed share, and whatever's
+ *  left is split evenly across the per-opponent logo columns. */
+function buildColgroup(numLogoCols, numStatCols) {
+  const teamPct = 15;
+  const statPct = 6;
+  const statsTotal = statPct * numStatCols;
+  const logoPct = (100 - teamPct - statsTotal) / numLogoCols;
+  let cols = `<col style="width:${teamPct}%">`;
+  for (let i = 0; i < numStatCols; i++) cols += `<col style="width:${statPct}%">`;
+  for (let i = 0; i < numLogoCols; i++) cols += `<col style="width:${logoPct}%">`;
+  return `<colgroup>${cols}</colgroup>`;
 }
 
 function renderTable(rows, columns, opts) {
   const showWcGb = !!opts.showWcGb;
+  const showFullName = opts.showFullName !== false;
+  const numStatCols = showWcGb ? 6 : 5;
+
   let head = '<tr><th class="team-cell">Team</th><th>GP/R</th><th>W</th><th>L</th><th>PCT</th><th>GB</th>';
   if (showWcGb) head += "<th>WCGB</th>";
   columns.forEach((c) => {
-    head += `<th>${c.abbr}</th>`;
+    head += `<th class="logo-head"><img class="team-logo-header" src="${logoUrl(c)}" alt="${c.abbr}" title="${c.name}" loading="lazy" onerror="this.replaceWith(document.createTextNode('${c.abbr}'))"></th>`;
   });
   head += "</tr>";
 
+  const dividerAfter = opts.dividerAfter || {};
   let body = "";
-  rows.forEach((team) => {
+  rows.forEach((team, i) => {
     const cls = statusClass(team);
-    body += `<tr class="${cls}">`;
-    body += teamCell(team);
+    const divider = dividerAfter[i + 1] || "";
+    body += `<tr class="${[cls, divider].filter(Boolean).join(" ")}">`;
+    body += teamCell(team, showFullName);
     body += `<td class="record-cell">${team.gamesPlayed}/${team.gamesRemaining}</td>`;
     body += `<td class="record-cell">${team.wins}</td>`;
     body += `<td class="record-cell">${team.losses}</td>`;
@@ -227,7 +250,8 @@ function renderTable(rows, columns, opts) {
     body += "</tr>";
   });
 
-  return `<div class="table-scroll"><table class="standings"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+  const colgroup = buildColgroup(columns.length, numStatCols);
+  return `<div class="table-scroll"><table class="standings">${colgroup}<thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 
 function renderLeagueView(teams) {
@@ -236,7 +260,14 @@ function renderLeagueView(teams) {
     const leagueTeams = teams.filter((t) => t.leagueId === lg.id);
     const ordered = buildLeagueOrder(leagueTeams);
     html += `<div class="division-block"><h3>${lg.name}</h3>`;
-    html += renderTable(ordered, ordered, { showWcGb: true, gbField: "league" });
+    // Row 3 = the last of the 3 division leaders; row 6 = the last of the 3 wild-card
+    // spots (6 total current playoff teams). Bold dividers mark the current cutoffs.
+    html += renderTable(ordered, ordered, {
+      showWcGb: true,
+      gbField: "league",
+      showFullName: false,
+      dividerAfter: { 3: "lineTop3", 6: "lineTop6" },
+    });
     html += "</div>";
   });
   return html;

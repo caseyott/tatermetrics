@@ -225,6 +225,7 @@ body {
 }
 
 .view { display: block; }
+.view[hidden] { display: none; }
 
 .division-block {
   background: var(--color-surface);
@@ -251,16 +252,18 @@ body {
 
 table.standings {
   border-collapse: collapse;
+  table-layout: fixed;
   width: 100%;
-  min-width: 640px;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem + 2px);
 }
 
 table.standings th,
 table.standings td {
-  padding: 0.45rem 0.6rem;
+  padding: 0.3rem 0.3rem;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -268,7 +271,7 @@ table.standings thead th {
   background: var(--color-table-head-bg);
   color: var(--color-muted);
   font-weight: 700;
-  font-size: 0.7rem;
+  font-size: calc(0.7rem + 2px);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 2px solid var(--color-border);
@@ -300,8 +303,39 @@ table.standings tbody tr:hover td.team-cell {
 .team-name {
   color: var(--color-muted);
   font-weight: 400;
-  font-size: 0.78rem;
+  font-size: calc(0.78rem + 2px);
   margin-left: 5px;
+}
+
+.team-logo {
+  height: 18px;
+  width: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+th.logo-head {
+  padding: 0.3rem 0.15rem;
+}
+
+.team-logo-header {
+  height: 20px;
+  width: 20px;
+  max-width: 100%;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.team-logo-diag {
+  height: 18px;
+  width: 18px;
+  max-width: 100%;
+  object-fit: contain;
+  vertical-align: middle;
+  filter: grayscale(1);
+  opacity: 0.32;
 }
 
 td.diag {
@@ -310,12 +344,21 @@ td.diag {
 
 td.nc {
   color: var(--color-muted);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem + 2px);
 }
 
 td.magic-num {
   font-weight: 700;
   color: var(--color-primary-dark);
+}
+
+/* Playoff-cutoff dividers in the League Standings table:
+   bold line after the 3 division leaders, and after all 6 current playoff teams. */
+tr.lineTop3 td {
+  border-bottom: 3px solid var(--color-heading);
+}
+tr.lineTop6 td {
+  border-bottom: 3px solid var(--color-error);
 }
 
 tr.clinched-division td.team-cell,
@@ -418,5 +461,10 @@ tr.eliminated td.record-cell {
   .title { font-size: 0.95rem; }
   .subtitle { display: none; }
   .livePulseLabel { display: none; }
-  table.standings { font-size: 0.78rem; }
+  table.standings { font-size: calc(0.6rem + 2px); }
+  table.standings th, table.standings td { padding: 0.2rem 0.15rem; }
+  .team-logo { height: 14px; width: 14px; margin-right: 2px; }
+  .team-logo-header { height: 15px; width: 15px; }
+  .team-logo-diag { height: 14px; width: 14px; }
+  .status-tag { display: none; }
 }

@@ -1,0 +1,286 @@
+/* =========================================================
+   Design tokens — matches mlb.tatertech.net / curling.tatertech.net
+   ========================================================= */
+:root {
+  /* Brand */
+  --color-primary: #1e5fa8;
+  --color-primary-dark: #154480;
+  --color-primary-light: #dbeafe;
+
+  /* Surfaces */
+  --color-bg: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-header-bg: #1a2e4a;
+  --color-banner-bg: #2e4a7a;
+  --color-banner-text: #b5d4f4;
+
+  /* Text */
+  --color-text: #1f2937;
+  --color-heading: #111827;
+  --color-muted: #6b7280;
+
+  /* Form / border */
+  --color-border: #d1d5db;
+
+  /* Status */
+  --color-green-bg: #dcfce7;
+  --color-green-text: #166534;
+  --color-amber-bg: #fef3c7;
+  --color-amber-text: #92400e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Roboto Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+.header {
+  background: var(--color-header-bg);
+  color: #fff;
+}
+
+.headerInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.titleIcon {
+  font-size: 1.6rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.livePulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* =========================================================
+   Main / intro
+   ========================================================= */
+.main {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2.5rem;
+  flex: 1;
+}
+
+.introCard {
+  margin-bottom: 1.5rem;
+}
+
+.introTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 0.35rem;
+}
+
+.introText {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  max-width: 620px;
+}
+
+/* =========================================================
+   Card grid
+   ========================================================= */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.appCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  padding: 1rem 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.appCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.appCard.comingSoon {
+  opacity: 0.75;
+}
+
+.appCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.appCardIcon {
+  font-size: 1.6rem;
+  color: var(--color-primary);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+}
+
+.statusPill.live {
+  background: var(--color-green-bg);
+  color: var(--color-green-text);
+}
+
+.statusPill.soon {
+  background: var(--color-amber-bg);
+  color: var(--color-amber-text);
+}
+
+.appCardTitle {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-heading);
+}
+
+.appCardDesc {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+/* =========================================================
+   Stub pages
+   ========================================================= */
+.stubMain {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  flex: 1;
+  text-align: center;
+}
+
+.stubIcon {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+}
+
+.stubTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+}
+
+.stubText {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-primary-dark);
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .title { font-size: 0.95rem; }
+  .subtitle { display: none; }
+}
