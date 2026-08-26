@@ -18,6 +18,21 @@ resource "aws_cloudfront_origin_access_control" "site" {
 }
 
 ##############################################
+# CloudFront Function — extensionless URI rewrite
+#
+# Rewrites requests like /mlb or /mlb/ to /mlb/index.html so each
+# sub-site's index page renders without requiring the full path.
+##############################################
+
+resource "aws_cloudfront_function" "url_rewrite" {
+  name    = "${var.app_name}-url-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrite extensionless URIs to their directory's index.html"
+  publish = true
+  code    = file("${path.module}/functions/url-rewrite.js")
+}
+
+##############################################
 # CloudFront distribution
 ##############################################
 
@@ -44,6 +59,11 @@ resource "aws_cloudfront_distribution" "site" {
 
     # AWS-managed "CachingOptimized" policy
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.url_rewrite.arn
+    }
   }
 
   restrictions {
