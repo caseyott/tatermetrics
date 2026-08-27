@@ -32,10 +32,19 @@
     <div class="right">
       <span class="livePulseDot" aria-hidden="true"></span>
       <span class="livePulseLabel">Live</span>
-      <button id="refresh-btn" class="refreshBtn" title="Refresh data"><i class="ti ti-refresh"></i> Refresh</button>
+      <button id="refresh-btn" class="refreshBtn" title="Refresh data" aria-label="Refresh data"><i class="ti ti-refresh"></i> <span class="btnLabel">Refresh</span></button>
     </div>
   </div>
 </header>
+
+<div class="scoreboardBar">
+  <div class="scoreboardDate" id="scoreboard-date">TODAY</div>
+  <button class="scoreboardNav prev" id="scoreboard-prev" aria-label="Scroll left"><i class="ti ti-chevron-left"></i></button>
+  <div class="scoreboardTrack" id="scoreboard-track">
+    <div class="gameCard noGames">Loading scores&hellip;</div>
+  </div>
+  <button class="scoreboardNav next" id="scoreboard-next" aria-label="Scroll right"><i class="ti ti-chevron-right"></i></button>
+</div>
 
 <nav class="tabBar">
   <button class="tabPill active" data-view="league">League Standings</button>

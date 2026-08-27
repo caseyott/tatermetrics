@@ -93,6 +93,8 @@ body {
   font-weight: 700;
   font-size: 1.1rem;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subtitle {
@@ -280,7 +282,14 @@ body {
   text-align: center;
 }
 
+a, button {
+  touch-action: manipulation;
+}
+
 @media (max-width: 640px) {
   .title { font-size: 0.95rem; }
   .subtitle { display: none; }
+  .main { padding: 1.25rem 0.85rem 2rem; }
+  .cardGrid { grid-template-columns: 1fr; gap: 0.75rem; }
+  .appCard { padding: 0.9rem 1rem; }
 }

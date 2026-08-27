@@ -35,6 +35,17 @@
   --color-amber-text: #92400e;
   --color-red-bg: #fee2e2;
   --color-red-text: #991b1b;
+
+  /* League banners */
+  --color-al-banner-bg: #c8102e;
+  --color-al-banner-text: #ffffff;
+
+  /* Scoreboard bar */
+  --color-scoreboard-bg: #e9ebee;
+  --color-scoreboard-border: rgba(0, 0, 0, 0.09);
+  --color-scoreboard-text: #1f2937;
+  --color-scoreboard-muted: #6b7280;
+  --color-scoreboard-live: #16a34a;
 }
 
 * {
@@ -101,6 +112,8 @@ body {
   font-weight: 700;
   font-size: 1.1rem;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subtitle {
@@ -153,12 +166,150 @@ body {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
+  min-height: 34px;
+  min-width: 34px;
   transition: background 0.15s;
 }
 
 .refreshBtn:hover {
   background: rgba(255, 255, 255, 0.22);
+}
+
+/* =========================================================
+   Scoreboard bar
+   ========================================================= */
+.scoreboardBar {
+  background: var(--color-scoreboard-bg);
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-scoreboard-border);
+}
+
+.scoreboardDate {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-scoreboard-text);
+  border-right: 1px solid var(--color-scoreboard-border);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.scoreboardNav {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  padding: 0 0.7rem;
+  min-width: 36px;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.12s;
+}
+
+.scoreboardNav:hover {
+  color: var(--color-heading);
+}
+
+.scoreboardTrack {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+}
+
+.scoreboardTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.gameCard {
+  flex-shrink: 0;
+  width: 148px;
+  padding: 0.45rem 0.65rem;
+  border-right: 1px solid var(--color-scoreboard-border);
+  color: var(--color-scoreboard-text);
+  font-size: 0.72rem;
+}
+
+.gameCard.noGames {
+  width: auto;
+  padding: 0.6rem 1rem;
+  color: var(--color-scoreboard-muted);
+  display: flex;
+  align-items: center;
+}
+
+.gameCard .gameStatus {
+  color: var(--color-scoreboard-muted);
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gameCard.live .gameStatus {
+  color: var(--color-scoreboard-live);
+}
+
+.gameCard .gameTeamRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.12rem 0;
+  gap: 0.4rem;
+}
+
+.gameCard .gameTeamRow.winner .gameScore,
+.gameCard .gameTeamRow.winner .gameTeamAbbr {
+  font-weight: 700;
+}
+
+.gameCard .gameTeamName {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.gameCard .gameTeamName img {
+  height: 16px;
+  width: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.gameCard .gameTeamAbbr {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gameCard .gameScore {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .scoreboardDate { padding: 0.4rem 0.6rem; font-size: 0.6rem; }
+  .gameCard { width: 118px; font-size: 0.65rem; padding: 0.4rem 0.5rem; }
 }
 
 /* =========================================================
@@ -246,6 +397,11 @@ body {
   letter-spacing: 0.08em;
   color: var(--color-banner-text);
   background: var(--color-banner-bg);
+}
+
+.division-block h3.leagueBannerAL {
+  background: var(--color-al-banner-bg);
+  color: var(--color-al-banner-text);
 }
 
 .table-scroll { overflow-x: auto; }
@@ -457,12 +613,32 @@ tr.eliminated td.record-cell {
 
 .footer .sep { opacity: 0.5; }
 
+a, button {
+  touch-action: manipulation;
+}
+
 @media (max-width: 640px) {
+  .headerInner { padding: 0 0.75rem; gap: 0.5rem; }
   .title { font-size: 0.95rem; }
   .subtitle { display: none; }
   .livePulseLabel { display: none; }
-  table.standings { font-size: calc(0.6rem + 2px); }
-  table.standings th, table.standings td { padding: 0.2rem 0.15rem; }
+  .refreshBtn .btnLabel { display: none; }
+  .refreshBtn { padding: 0.4rem; }
+  .tabBar { padding: 0.75rem 0.75rem 0; gap: 0.4rem; }
+  .tabPill { flex: 1; text-align: center; padding: 0.55rem 0.5rem; }
+  .main { padding: 0.85rem 0.75rem 2rem; }
+
+  /* Let the standings table use its natural (readable) width and scroll
+     horizontally instead of being force-squeezed to fit the screen — with
+     20+ columns in the League view, fixed-percentage widths become
+     illegibly small on a phone. The team column stays sticky via
+     .table-scroll/.team-cell so context is never lost while scrolling. */
+  table.standings { table-layout: auto; font-size: calc(0.6rem + 2px); }
+  table.standings colgroup col { width: auto !important; }
+  .table-scroll { -webkit-overflow-scrolling: touch; }
+  table.standings th, table.standings td { padding: 0.3rem 0.4rem; }
+  table.standings td.team-cell, table.standings th.team-cell { min-width: 68px; }
+  th.logo-head, table.standings td.magic-num, table.standings td.nc, table.standings td.diag { min-width: 30px; }
   .team-logo { height: 14px; width: 14px; margin-right: 2px; }
   .team-logo-header { height: 15px; width: 15px; }
   .team-logo-diag { height: 14px; width: 14px; }

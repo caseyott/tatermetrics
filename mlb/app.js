@@ -4,7 +4,9 @@
  */
 
 const STANDINGS_BASE = "https://statsapi.mlb.com/api/v1/standings";
+const SCHEDULE_BASE = "https://statsapi.mlb.com/api/v1/schedule";
 const SEASON_TOTAL_GAMES = 162; // standard MLB season length used in the magic-number formula
+const SCOREBOARD_REFRESH_MS = 10 * 60 * 1000; // 10 minutes
 
 const LEAGUES = [
   { id: 103, name: "American League", short: "AL" },
@@ -13,36 +15,36 @@ const LEAGUES = [
 
 // Static team metadata (id -> abbreviation/name) so we don't need an extra API round trip.
 const TEAM_META = {
-  108: { abbr: "LAA", name: "Los Angeles Angels" },
-  109: { abbr: "AZ", name: "Arizona Diamondbacks" },
-  110: { abbr: "BAL", name: "Baltimore Orioles" },
-  111: { abbr: "BOS", name: "Boston Red Sox" },
-  112: { abbr: "CHC", name: "Chicago Cubs" },
-  113: { abbr: "CIN", name: "Cincinnati Reds" },
-  114: { abbr: "CLE", name: "Cleveland Guardians" },
-  115: { abbr: "COL", name: "Colorado Rockies" },
-  116: { abbr: "DET", name: "Detroit Tigers" },
-  117: { abbr: "HOU", name: "Houston Astros" },
-  118: { abbr: "KC", name: "Kansas City Royals" },
-  119: { abbr: "LAD", name: "Los Angeles Dodgers" },
-  120: { abbr: "WSH", name: "Washington Nationals" },
-  121: { abbr: "NYM", name: "New York Mets" },
-  133: { abbr: "ATH", name: "Athletics" },
-  134: { abbr: "PIT", name: "Pittsburgh Pirates" },
-  135: { abbr: "SD", name: "San Diego Padres" },
-  136: { abbr: "SEA", name: "Seattle Mariners" },
-  137: { abbr: "SF", name: "San Francisco Giants" },
-  138: { abbr: "STL", name: "St. Louis Cardinals" },
-  139: { abbr: "TB", name: "Tampa Bay Rays" },
-  140: { abbr: "TEX", name: "Texas Rangers" },
-  141: { abbr: "TOR", name: "Toronto Blue Jays" },
-  142: { abbr: "MIN", name: "Minnesota Twins" },
-  143: { abbr: "PHI", name: "Philadelphia Phillies" },
-  144: { abbr: "ATL", name: "Atlanta Braves" },
-  145: { abbr: "CWS", name: "Chicago White Sox" },
-  146: { abbr: "MIA", name: "Miami Marlins" },
-  147: { abbr: "NYY", name: "New York Yankees" },
-  158: { abbr: "MIL", name: "Milwaukee Brewers" },
+  108: { abbr: "LAA", name: "Los Angeles Angels", short: "Angels" },
+  109: { abbr: "AZ", name: "Arizona Diamondbacks", short: "Diamondbacks" },
+  110: { abbr: "BAL", name: "Baltimore Orioles", short: "Orioles" },
+  111: { abbr: "BOS", name: "Boston Red Sox", short: "Red Sox" },
+  112: { abbr: "CHC", name: "Chicago Cubs", short: "Cubs" },
+  113: { abbr: "CIN", name: "Cincinnati Reds", short: "Reds" },
+  114: { abbr: "CLE", name: "Cleveland Guardians", short: "Guardians" },
+  115: { abbr: "COL", name: "Colorado Rockies", short: "Rockies" },
+  116: { abbr: "DET", name: "Detroit Tigers", short: "Tigers" },
+  117: { abbr: "HOU", name: "Houston Astros", short: "Astros" },
+  118: { abbr: "KC", name: "Kansas City Royals", short: "Royals" },
+  119: { abbr: "LAD", name: "Los Angeles Dodgers", short: "Dodgers" },
+  120: { abbr: "WSH", name: "Washington Nationals", short: "Nationals" },
+  121: { abbr: "NYM", name: "New York Mets", short: "Mets" },
+  133: { abbr: "ATH", name: "Athletics", short: "Athletics" },
+  134: { abbr: "PIT", name: "Pittsburgh Pirates", short: "Pirates" },
+  135: { abbr: "SD", name: "San Diego Padres", short: "Padres" },
+  136: { abbr: "SEA", name: "Seattle Mariners", short: "Mariners" },
+  137: { abbr: "SF", name: "San Francisco Giants", short: "Giants" },
+  138: { abbr: "STL", name: "St. Louis Cardinals", short: "Cardinals" },
+  139: { abbr: "TB", name: "Tampa Bay Rays", short: "Rays" },
+  140: { abbr: "TEX", name: "Texas Rangers", short: "Rangers" },
+  141: { abbr: "TOR", name: "Toronto Blue Jays", short: "Blue Jays" },
+  142: { abbr: "MIN", name: "Minnesota Twins", short: "Twins" },
+  143: { abbr: "PHI", name: "Philadelphia Phillies", short: "Phillies" },
+  144: { abbr: "ATL", name: "Atlanta Braves", short: "Braves" },
+  145: { abbr: "CWS", name: "Chicago White Sox", short: "White Sox" },
+  146: { abbr: "MIA", name: "Miami Marlins", short: "Marlins" },
+  147: { abbr: "NYY", name: "New York Yankees", short: "Yankees" },
+  158: { abbr: "MIL", name: "Milwaukee Brewers", short: "Brewers" },
 };
 
 // The standings API's division object only includes {id, link} — no name — so we
@@ -99,7 +101,7 @@ async function fetchAllStandings() {
     const leagueId = rec.league ? rec.league.id : null;
     if (rec.lastUpdated) latestUpdate = rec.lastUpdated;
     (rec.teamRecords || []).forEach((tr) => {
-      const meta = TEAM_META[tr.team.id] || { abbr: tr.team.name.slice(0, 3).toUpperCase(), name: tr.team.name };
+      const meta = TEAM_META[tr.team.id] || { abbr: tr.team.name.slice(0, 3).toUpperCase(), name: tr.team.name, short: tr.team.name };
       const wc = wcByTeam[tr.team.id] || {};
       const wins = tr.wins;
       const losses = tr.losses;
@@ -108,6 +110,7 @@ async function fetchAllStandings() {
         id: tr.team.id,
         abbr: meta.abbr,
         name: meta.name,
+        shortName: meta.short || meta.name,
         divisionId,
         divisionName: divMeta.name,
         divisionSort: divMeta.sort,
@@ -201,7 +204,7 @@ function renderMatrixCell(rowTeam, colTeam) {
 }
 
 function teamCell(team, showFullName) {
-  const nameSpan = showFullName ? `<span class="team-name">${team.name}</span>` : "";
+  const nameSpan = showFullName ? `<span class="team-name">${team.shortName}</span>` : "";
   return `<td class="team-cell" title="${team.name}"><img class="team-logo" src="${logoUrl(team)}" alt="" loading="lazy" onerror="this.style.display='none'">${team.abbr}${statusTag(team)}${nameSpan}</td>`;
 }
 
@@ -259,7 +262,8 @@ function renderLeagueView(teams) {
   LEAGUES.forEach((lg) => {
     const leagueTeams = teams.filter((t) => t.leagueId === lg.id);
     const ordered = buildLeagueOrder(leagueTeams);
-    html += `<div class="division-block"><h3>${lg.name}</h3>`;
+    const headerCls = lg.id === 103 ? " leagueBannerAL" : "";
+    html += `<div class="division-block"><h3 class="${headerCls}">${lg.name}</h3>`;
     // Row 3 = the last of the 3 division leaders; row 6 = the last of the 3 wild-card
     // spots (6 total current playoff teams). Bold dividers mark the current cutoffs.
     html += renderTable(ordered, ordered, {
@@ -289,7 +293,8 @@ function renderDivisionView(teams) {
   let html = "";
   orderedDivNames.forEach((divName) => {
     const ordered = buildDivisionOrder(divisions[divName]);
-    html += `<div class="division-block"><h3>${divName}</h3>`;
+    const headerCls = divisions[divName][0].leagueId === 103 ? " leagueBannerAL" : "";
+    html += `<div class="division-block"><h3 class="${headerCls}">${divName}</h3>`;
     html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division" });
     html += "</div>";
   });
@@ -318,6 +323,102 @@ async function loadAndRender() {
   }
 }
 
+/* =========================================================
+   Live scoreboard bar (today's games, refreshes every 10 min)
+   ========================================================= */
+
+function todayISODate() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatGameTime(iso) {
+  return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+}
+
+function gameStatusLabel(game) {
+  const status = game.status || {};
+  const detailed = status.detailedState || "";
+  if (status.abstractGameState === "Live") {
+    const ls = game.linescore || {};
+    if (ls.inningState && ls.currentInningOrdinal) {
+      return `${ls.inningState} ${ls.currentInningOrdinal}`;
+    }
+    return detailed || "Live";
+  }
+  if (status.abstractGameState === "Final") {
+    const ls = game.linescore || {};
+    if (ls.currentInning && ls.currentInning !== 9) return `Final/${ls.currentInning}`;
+    return "Final";
+  }
+  if (detailed === "Postponed" || detailed === "Cancelled" || detailed === "Suspended") return detailed;
+  if (detailed === "Warmup") return "Warmup";
+  return formatGameTime(game.gameDate);
+}
+
+function renderGameCard(game) {
+  const away = game.teams.away;
+  const home = game.teams.home;
+  const awayMeta = TEAM_META[away.team.id] || { abbr: away.team.name.slice(0, 3).toUpperCase(), name: away.team.name };
+  const homeMeta = TEAM_META[home.team.id] || { abbr: home.team.name.slice(0, 3).toUpperCase(), name: home.team.name };
+  const state = (game.status || {}).abstractGameState;
+  const isLive = state === "Live";
+  const showScores = isLive || state === "Final";
+  const awayScore = showScores && away.score != null ? away.score : "";
+  const homeScore = showScores && home.score != null ? home.score : "";
+  const awayWon = state === "Final" && !!away.isWinner;
+  const homeWon = state === "Final" && !!home.isWinner;
+
+  return `<div class="gameCard${isLive ? " live" : ""}">
+    <div class="gameStatus">${gameStatusLabel(game)}</div>
+    <div class="gameTeamRow${awayWon ? " winner" : ""}">
+      <span class="gameTeamName"><img src="${logoUrl(away.team)}" alt="" loading="lazy" onerror="this.style.display='none'"><span class="gameTeamAbbr">${awayMeta.abbr}</span></span>
+      <span class="gameScore">${awayScore}</span>
+    </div>
+    <div class="gameTeamRow${homeWon ? " winner" : ""}">
+      <span class="gameTeamName"><img src="${logoUrl(home.team)}" alt="" loading="lazy" onerror="this.style.display='none'"><span class="gameTeamAbbr">${homeMeta.abbr}</span></span>
+      <span class="gameScore">${homeScore}</span>
+    </div>
+  </div>`;
+}
+
+async function fetchAndRenderScoreboard() {
+  const track = document.getElementById("scoreboard-track");
+  const dateLabel = document.getElementById("scoreboard-date");
+  if (!track) return;
+  const dateStr = todayISODate();
+  if (dateLabel) {
+    const d = new Date(`${dateStr}T12:00:00`);
+    dateLabel.innerHTML = `${d.toLocaleDateString("en-US", { month: "short" }).toUpperCase()}<br>${d.getDate()}`;
+  }
+  try {
+    const res = await fetch(`${SCHEDULE_BASE}?sportId=1&date=${dateStr}&hydrate=linescore,team`);
+    if (!res.ok) throw new Error("schedule request failed");
+    const json = await res.json();
+    const games = (json.dates && json.dates[0] && json.dates[0].games) || [];
+    if (!games.length) {
+      track.innerHTML = `<div class="gameCard noGames">No games scheduled today</div>`;
+      return;
+    }
+    track.innerHTML = games.map(renderGameCard).join("");
+  } catch (err) {
+    console.error(err);
+    track.innerHTML = `<div class="gameCard noGames">Scores unavailable</div>`;
+  }
+}
+
+function initScoreboardNav() {
+  const track = document.getElementById("scoreboard-track");
+  const prev = document.getElementById("scoreboard-prev");
+  const next = document.getElementById("scoreboard-next");
+  if (!track || !prev || !next) return;
+  prev.addEventListener("click", () => track.scrollBy({ left: -300, behavior: "smooth" }));
+  next.addEventListener("click", () => track.scrollBy({ left: 300, behavior: "smooth" }));
+}
+
 function initTabs() {
   const buttons = document.querySelectorAll(".tabPill");
   buttons.forEach((btn) => {
@@ -334,3 +435,6 @@ function initTabs() {
 
 initTabs();
 loadAndRender();
+initScoreboardNav();
+fetchAndRenderScoreboard();
+setInterval(fetchAndRenderScoreboard, SCOREBOARD_REFRESH_MS);
