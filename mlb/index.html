@@ -49,12 +49,23 @@
 <nav class="tabBar">
   <button class="tabPill active" data-view="league">League Standings</button>
   <button class="tabPill" data-view="division">Division Standings</button>
+  <button class="tabPill" data-view="history">By Date</button>
 </nav>
 
 <main id="app" class="main">
   <div id="status" class="status">Loading live standings&hellip;</div>
   <div id="league-view" class="view"></div>
   <div id="division-view" class="view" hidden></div>
+
+  <div id="history-view" class="view" hidden>
+    <div class="historyControls">
+      <label for="history-date">Standings as of</label>
+      <select id="history-date"></select>
+    </div>
+    <div id="history-status" class="status"></div>
+    <div id="history-league"></div>
+    <div id="history-division"></div>
+  </div>
 
   <section class="legendCard">
     <h2 class="legendTitle">MLB Playoff Qualifications</h2>

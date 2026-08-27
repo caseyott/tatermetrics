@@ -4,10 +4,11 @@ A live, self-updating recreation of [playoffmagic.com](https://www.playoffmagic.
 
 ## What it shows
 
-Two views, toggled by tab:
+Three views, toggled by tab:
 
 - **League Standings** — all 15 teams per league, ordered the way MLB actually seeds a wild-card race: the 3 division leaders first (East, Central, West), then the top 3 wild-card contenders, then everyone else by record.
 - **Division Standings** — the six 5-team divisions, each with its own head-to-head grid.
+- **By Date** — both of the above, rebuilt exactly as they looked on a chosen past date, picked from a dropdown of every date a snapshot exists (starting 2026-08-27). Reads straight from that date's `data/YYYY-MM-DD.json` file — see below — so no day-over-day highlighting applies here, just a frozen look back.
 
 Each table shows record, games played/remaining, win%, games back (and wild-card games back on the league view), plus a full grid of pairwise **magic numbers**: the combined wins (row team) + losses (column team) needed for the row team to guarantee finishing ahead of that specific column team. Cells show `NC` ("not clinched") when the column team currently has the better record. Rows are tinted to flag a team that's clinched its division, clinched a wild card, or been eliminated.
 
@@ -18,17 +19,20 @@ Magic number cells are also flagged when they've dropped since this morning's sn
 - `index.html` — page structure, loads Google Fonts (Roboto Condensed) and Tabler Icons to match the styling used on [curling.tatertech.net](https://curling.tatertech.net)
 - `style.css` — all styling, using the same CSS variable tokens (colors, spacing, table conventions) as the curling scorekeeper site for a consistent look across tatertech.net properties
 - `app.js` — fetches and computes everything client-side; no backend or build step
-- `scripts/snapshot.js` — daily cron job (Node 18+, no deps) that writes the morning wins/losses baseline `app.js` diffs against
+- `scripts/snapshot.js` — daily cron job (Node 18+, no deps) that writes each day's full standings snapshot to S3
 
-## Since-this-morning snapshots
+## Daily snapshots
 
-`app.js` itself has no backend or memory — every page load starts fresh from the live MLB Stats API. To flag magic numbers that changed since this morning, a separate daily job writes a tiny snapshot of every team's wins/losses to S3, dated by the US-Eastern "baseball day":
+`app.js` itself has no backend or memory — every page load starts fresh from the live MLB Stats API. A separate daily job writes a full standings snapshot (same fields as the live API — wins/losses, division/league IDs, ranks, clinch flags, wild-card rank, etc.) to S3, dated by the US-Eastern "baseball day":
 
 ```
 s3://tatermetrics.tatertech.net/mlb/data/YYYY-MM-DD.json
 ```
 
-`.github/workflows/mlb-snapshot.yml` runs `scripts/snapshot.js` once a day (09:15 UTC — after all of yesterday's games, including West Coast games, are final, but before today's games start), then uploads the result using the same GitHub Actions OIDC deploy role already set up in `terraform/modules/github_oidc`. On every page load, `app.js` fetches *today's* file (falling back up to 4 days if today's isn't up yet, e.g. a missed cron run) and re-derives what each pairwise magic number *was* at that snapshot, since the formula only depends on wins/losses. That means a cell can flip to "down 1" mid-afternoon as soon as that game goes final — no need to wait until the next day.
+`.github/workflows/mlb-snapshot.yml` runs `scripts/snapshot.js` once a day (09:15 UTC — after all of yesterday's games, including West Coast games, are final, but before today's games start), then uploads the result using the same GitHub Actions OIDC deploy role already set up in `terraform/modules/github_oidc`. This snapshot feeds two features:
+
+- **Since-this-morning highlighting** — on every page load, `app.js` fetches *today's* file (falling back up to 4 days if today's isn't up yet, e.g. a missed cron run) and re-derives what each pairwise magic number *was* at that snapshot, since the formula only depends on wins/losses. That means a cell can flip to "down 1" mid-afternoon as soon as that game goes final — no need to wait until the next day.
+- **The "By Date" tab** — fetches a specific date's file by name and rebuilds the full League/Division views from every field in it, giving a frozen look at how standings looked that morning.
 
 Requires two repo-level Actions variables (Settings → Actions → Variables), both already surfaced as terraform outputs:
 

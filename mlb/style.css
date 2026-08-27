@@ -378,6 +378,50 @@ body {
 .view { display: block; }
 .view[hidden] { display: none; }
 
+.historyControls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.historyControls label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.historyControls select {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.historyControls select:hover {
+  border-color: var(--color-primary);
+}
+
+.historySectionTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 1.5rem 0 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+#history-league .historySectionTitle {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
 .division-block {
   background: var(--color-surface);
   border-radius: 8px;

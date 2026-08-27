@@ -2,11 +2,15 @@
 /**
  * MLB standings snapshot — daily cron job (see ../../.github/workflows/mlb-snapshot.yml)
  *
- * Fetches current MLB standings and writes a small JSON file recording each
- * team's wins/losses. app.js fetches yesterday's file the next day and
- * re-derives the magic number as of that date (magicNumber depends only on
- * wins/losses), diffing it against today's live number to flag cells that
- * dropped.
+ * Fetches current MLB standings (regular season + wild card) and writes a
+ * JSON snapshot of every team's full standings record — the same fields
+ * app.js's fetchAllStandings() pulls from the live API. The site uses this
+ * two ways:
+ *   - app.js diffs today's live magic numbers against today's morning
+ *     snapshot (using just the wins/losses fields) to flag cells that
+ *     dropped since the snapshot was taken.
+ *   - the "By Date" tab rebuilds the full League/Division standings views
+ *     exactly as they looked on a chosen date, using every stored field.
  *
  * The file is named by the US-Eastern "baseball day" (not UTC), since that's
  * the calendar MLB schedules games against, regardless of what UTC time this
@@ -15,8 +19,7 @@
  * Usage: node snapshot.js [outDir]   (default outDir: ./out)
  */
 
-const STANDINGS_URL =
-  "https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&standingsTypes=regularSeason";
+const STANDINGS_BASE = "https://statsapi.mlb.com/api/v1/standings";
 
 function easternDateString(d = new Date()) {
   // en-CA gives YYYY-MM-DD directly; timeZone pins it to the ET calendar day.
@@ -24,23 +27,56 @@ function easternDateString(d = new Date()) {
 }
 
 async function main() {
-  const res = await fetch(STANDINGS_URL);
-  if (!res.ok) {
-    throw new Error(`standings request failed: ${res.status} ${res.statusText}`);
+  const [divRes, wcRes] = await Promise.all([
+    fetch(`${STANDINGS_BASE}?leagueId=103,104&standingsTypes=regularSeason`),
+    fetch(`${STANDINGS_BASE}?leagueId=103,104&standingsTypes=wildCard`),
+  ]);
+  if (!divRes.ok || !wcRes.ok) {
+    throw new Error(`standings request failed: ${divRes.status}/${wcRes.status}`);
   }
-  const json = await res.json();
+  const divJson = await divRes.json();
+  const wcJson = await wcRes.json();
+
+  // wildCardRank lookup by team id, same as app.js's fetchAllStandings.
+  const wcByTeam = {};
+  for (const rec of wcJson.records || []) {
+    for (const tr of rec.teamRecords || []) {
+      wcByTeam[tr.team.id] = tr;
+    }
+  }
 
   const teams = {};
-  for (const rec of json.records || []) {
+  for (const rec of divJson.records || []) {
+    const divisionId = rec.division ? rec.division.id : null;
+    const leagueId = rec.league ? rec.league.id : null;
     for (const tr of rec.teamRecords || []) {
-      teams[tr.team.id] = { wins: tr.wins, losses: tr.losses };
+      const wc = wcByTeam[tr.team.id] || {};
+      teams[tr.team.id] = {
+        divisionId,
+        leagueId,
+        wins: tr.wins,
+        losses: tr.losses,
+        gamesPlayed: tr.gamesPlayed,
+        winningPercentage: tr.winningPercentage,
+        divisionGamesBack: tr.divisionGamesBack,
+        leagueGamesBack: tr.leagueGamesBack,
+        wildCardGamesBack: tr.wildCardGamesBack,
+        divisionRank: tr.divisionRank,
+        divisionLeader: !!tr.divisionLeader,
+        divisionChamp: !!tr.divisionChamp,
+        clinched: !!tr.clinched,
+        eliminationNumber: tr.eliminationNumber,
+        wildCardEliminationNumber: tr.wildCardEliminationNumber,
+        wildCardRank: wc.wildCardRank,
+      };
     }
   }
 
   const teamCount = Object.keys(teams).length;
   if (teamCount < 30) {
     // Sanity check — a partial/malformed response shouldn't get published,
-    // since a bad snapshot would poison tomorrow's diff for every team.
+    // since a bad snapshot would poison every date-diff and history view
+    // that reads it.
     throw new Error(`expected 30 teams, got ${teamCount} — refusing to write snapshot`);
   }
 

@@ -72,6 +72,44 @@ function isEliminated(elimField) {
   return n !== null && n <= 0;
 }
 
+/** Turn one team's raw standings fields (from the live API, or from a stored
+ *  snapshot — same field names either way) into the display-ready shape
+ *  every render function expects. Shared by the live fetch below and by the
+ *  "By Date" historical view, which rebuilds this from a data/*.json file. */
+function buildTeamRecord(id, raw) {
+  const meta = TEAM_META[id] || { abbr: String(id).slice(0, 3).toUpperCase(), name: `Team ${id}`, short: `Team ${id}` };
+  const divMeta = DIVISION_META[raw.divisionId] || { name: "Unknown Division", sort: 3 };
+  const wins = raw.wins;
+  const losses = raw.losses;
+  const gamesPlayed = raw.gamesPlayed != null ? raw.gamesPlayed : wins + losses;
+  return {
+    id,
+    abbr: meta.abbr,
+    name: meta.name,
+    shortName: meta.short || meta.name,
+    divisionId: raw.divisionId,
+    divisionName: divMeta.name,
+    divisionSort: divMeta.sort,
+    leagueId: raw.leagueId,
+    wins,
+    losses,
+    gamesPlayed,
+    gamesRemaining: Math.max(SEASON_TOTAL_GAMES - gamesPlayed, 0),
+    winPct: gamesPlayed > 0 ? wins / gamesPlayed : 0,
+    pctDisplay: raw.winningPercentage || (wins + losses > 0 ? (wins / (wins + losses)).toFixed(3).replace(/^0/, "") : ".000"),
+    divisionGamesBack: raw.divisionGamesBack || "-",
+    leagueGamesBack: raw.leagueGamesBack || "-",
+    wildCardGamesBack: raw.wildCardGamesBack || "-",
+    divisionRank: numOrNull(raw.divisionRank) || 99,
+    divisionLeader: !!raw.divisionLeader,
+    divisionChamp: !!raw.divisionChamp,
+    clinched: !!raw.clinched,
+    eliminationNumber: raw.eliminationNumber,
+    wildCardEliminationNumber: raw.wildCardEliminationNumber,
+    wildCardRank: numOrNull(raw.wildCardRank),
+  };
+}
+
 /** Fetch + merge regular season (division) standings and wild card standings for both leagues. */
 async function fetchAllStandings() {
   const [divRes, wcRes] = await Promise.all([
@@ -97,41 +135,30 @@ async function fetchAllStandings() {
   const teams = [];
   divJson.records.forEach((rec) => {
     const divisionId = rec.division ? rec.division.id : null;
-    const divMeta = DIVISION_META[divisionId] || { name: "Unknown Division", sort: 3 };
     const leagueId = rec.league ? rec.league.id : null;
     if (rec.lastUpdated) latestUpdate = rec.lastUpdated;
     (rec.teamRecords || []).forEach((tr) => {
-      const meta = TEAM_META[tr.team.id] || { abbr: tr.team.name.slice(0, 3).toUpperCase(), name: tr.team.name, short: tr.team.name };
       const wc = wcByTeam[tr.team.id] || {};
-      const wins = tr.wins;
-      const losses = tr.losses;
-      const gamesPlayed = tr.gamesPlayed != null ? tr.gamesPlayed : wins + losses;
-      teams.push({
-        id: tr.team.id,
-        abbr: meta.abbr,
-        name: meta.name,
-        shortName: meta.short || meta.name,
-        divisionId,
-        divisionName: divMeta.name,
-        divisionSort: divMeta.sort,
-        leagueId,
-        wins,
-        losses,
-        gamesPlayed,
-        gamesRemaining: Math.max(SEASON_TOTAL_GAMES - gamesPlayed, 0),
-        winPct: gamesPlayed > 0 ? wins / gamesPlayed : 0,
-        pctDisplay: tr.winningPercentage || (wins + losses > 0 ? (wins / (wins + losses)).toFixed(3).replace(/^0/, "") : ".000"),
-        divisionGamesBack: tr.divisionGamesBack || "-",
-        leagueGamesBack: tr.leagueGamesBack || "-",
-        wildCardGamesBack: tr.wildCardGamesBack || "-",
-        divisionRank: numOrNull(tr.divisionRank) || 99,
-        divisionLeader: !!tr.divisionLeader,
-        divisionChamp: !!tr.divisionChamp,
-        clinched: !!tr.clinched,
-        eliminationNumber: tr.eliminationNumber,
-        wildCardEliminationNumber: tr.wildCardEliminationNumber,
-        wildCardRank: numOrNull(wc.wildCardRank),
-      });
+      teams.push(
+        buildTeamRecord(tr.team.id, {
+          divisionId,
+          leagueId,
+          wins: tr.wins,
+          losses: tr.losses,
+          gamesPlayed: tr.gamesPlayed,
+          winningPercentage: tr.winningPercentage,
+          divisionGamesBack: tr.divisionGamesBack,
+          leagueGamesBack: tr.leagueGamesBack,
+          wildCardGamesBack: tr.wildCardGamesBack,
+          divisionRank: tr.divisionRank,
+          divisionLeader: tr.divisionLeader,
+          divisionChamp: tr.divisionChamp,
+          clinched: tr.clinched,
+          eliminationNumber: tr.eliminationNumber,
+          wildCardEliminationNumber: tr.wildCardEliminationNumber,
+          wildCardRank: wc.wildCardRank,
+        })
+      );
     });
   });
 
@@ -193,6 +220,77 @@ function magicNumberDelta(rowTeam, colTeam, prevTeams) {
   if (!prevRow || !prevCol) return null;
   const prevMn = SEASON_TOTAL_GAMES + 1 - prevRow.wins - prevCol.losses;
   return prevMn - magicNumber(rowTeam, colTeam);
+}
+
+/* =========================================================
+   "By Date" tab — full League + Division views as of a chosen
+   past snapshot, read straight from data/<date>.json in S3.
+   ========================================================= */
+
+const SNAPSHOT_START_DATE = "2026-08-27"; // first date a snapshot exists
+
+/** Every date from SNAPSHOT_START_DATE through today (ET), ascending. */
+function historyDateOptions() {
+  const dates = [];
+  const todayET = easternDateString();
+  let d = SNAPSHOT_START_DATE;
+  while (d <= todayET) {
+    dates.push(d);
+    d = addDays(d, 1);
+  }
+  return dates;
+}
+
+async function fetchSnapshotForDate(dateStr) {
+  const res = await fetch(`data/${dateStr}.json`);
+  if (!res.ok) return null;
+  const json = await res.json();
+  if (!json || !json.teams) return null;
+  return json;
+}
+
+/** Rebuild the full display-ready teams array from a stored snapshot. */
+function teamsFromSnapshot(snapshot) {
+  return Object.entries(snapshot.teams).map(([id, raw]) => buildTeamRecord(Number(id), raw));
+}
+
+function setHistoryStatus(msg, isError) {
+  const el = document.getElementById("history-status");
+  el.textContent = msg;
+  el.className = "status" + (isError ? " error" : "");
+  el.style.display = msg ? "block" : "none";
+}
+
+async function loadHistoryView(dateStr) {
+  setHistoryStatus(`Loading standings for ${dateStr}…`, false);
+  document.getElementById("history-league").innerHTML = "";
+  document.getElementById("history-division").innerHTML = "";
+  try {
+    const snapshot = await fetchSnapshotForDate(dateStr);
+    if (!snapshot) {
+      setHistoryStatus(`No snapshot found for ${dateStr} yet.`, true);
+      return;
+    }
+    const teams = teamsFromSnapshot(snapshot);
+    document.getElementById("history-league").innerHTML =
+      '<h2 class="historySectionTitle">League Standings</h2>' + renderLeagueView(teams, null);
+    document.getElementById("history-division").innerHTML =
+      '<h2 class="historySectionTitle">Division Standings</h2>' + renderDivisionView(teams, null);
+    setHistoryStatus("", false);
+  } catch (err) {
+    console.error(err);
+    setHistoryStatus(`Couldn't load the snapshot for ${dateStr}.`, true);
+  }
+}
+
+function initHistoryView() {
+  const select = document.getElementById("history-date");
+  if (!select) return;
+  select.innerHTML = historyDateOptions()
+    .map((d) => `<option value="${d}">${d}</option>`)
+    .join("");
+  select.value = SNAPSHOT_START_DATE;
+  select.addEventListener("change", () => loadHistoryView(select.value));
 }
 
 function isAheadOf(a, b) {
@@ -488,6 +586,7 @@ function initScoreboardNav() {
 
 function initTabs() {
   const buttons = document.querySelectorAll(".tabPill");
+  let historyLoaded = false;
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
       buttons.forEach((b) => b.classList.remove("active"));
@@ -495,12 +594,18 @@ function initTabs() {
       const view = btn.dataset.view;
       document.getElementById("league-view").hidden = view !== "league";
       document.getElementById("division-view").hidden = view !== "division";
+      document.getElementById("history-view").hidden = view !== "history";
+      if (view === "history" && !historyLoaded) {
+        historyLoaded = true;
+        loadHistoryView(document.getElementById("history-date").value);
+      }
     });
   });
   document.getElementById("refresh-btn").addEventListener("click", loadAndRender);
 }
 
 initTabs();
+initHistoryView();
 loadAndRender();
 initScoreboardNav();
 fetchAndRenderScoreboard();
