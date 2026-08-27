@@ -144,10 +144,10 @@ function magicNumber(a, b) {
 }
 
 /* =========================================================
-   Day-over-day magic number tracking
+   Since-last-snapshot magic number tracking
    ========================================================= */
 
-const SNAPSHOT_LOOKBACK_DAYS = 4; // in case a day's snapshot is missing (e.g. cron hiccup)
+const SNAPSHOT_LOOKBACK_DAYS = 4; // extra days to try if a cron run got missed
 
 function easternDateString(d = new Date()) {
   // MLB schedules by the Eastern calendar day, regardless of the viewer's
@@ -162,10 +162,14 @@ function addDays(dateStr, delta) {
   return easternDateString(d);
 }
 
-/** Walk backwards from yesterday looking for the most recent snapshot file. */
-async function fetchPreviousSnapshot() {
+/** Find the most recent snapshot available: today's file (written by the
+ *  ~5am ET cron, before today's games) if it's up yet, otherwise walk
+ *  backwards a few days in case a cron run got missed. Comparing live
+ *  standings against *today's* file is what lets a cell change mid-day as
+ *  today's games finish, rather than waiting until tomorrow to show. */
+async function fetchLatestSnapshot() {
   const todayET = easternDateString();
-  for (let back = 1; back <= SNAPSHOT_LOOKBACK_DAYS; back++) {
+  for (let back = 0; back <= SNAPSHOT_LOOKBACK_DAYS; back++) {
     const dateStr = addDays(todayET, -back);
     try {
       const res = await fetch(`data/${dateStr}.json`, { cache: "no-store" });
@@ -251,10 +255,10 @@ function renderMatrixCell(rowTeam, colTeam, prevTeams) {
     let badge = "";
     if (delta === 1) {
       cls += " mn-down1";
-      badge = '<span class="mn-arrow" title="down 1 since yesterday">&#9660;</span>';
+      badge = '<span class="mn-arrow" title="down 1 since this morning\'s snapshot">&#9660;</span>';
     } else if (delta !== null && delta >= 2) {
       cls += " mn-down2";
-      badge = `<span class="mn-arrow mn-arrow-double" title="down ${delta} since yesterday (doubleheader?)">&#9660;&#9660;</span>`;
+      badge = `<span class="mn-arrow mn-arrow-double" title="down ${delta} since this morning's snapshot (doubleheader?)">&#9660;&#9660;</span>`;
     }
     return `<td class="${cls}">${mn}${badge}</td>`;
   }
@@ -370,11 +374,11 @@ function setStatus(msg, isError) {
 async function loadAndRender() {
   setStatus("Loading live standings…", false);
   try {
-    const [{ teams, lastUpdated }, prevSnapshot] = await Promise.all([
+    const [{ teams, lastUpdated }, latestSnapshot] = await Promise.all([
       fetchAllStandings(),
-      fetchPreviousSnapshot(),
+      fetchLatestSnapshot(),
     ]);
-    const prevTeams = prevSnapshot ? prevSnapshot.teams : null;
+    const prevTeams = latestSnapshot ? latestSnapshot.teams : null;
     document.getElementById("league-view").innerHTML = renderLeagueView(teams, prevTeams);
     document.getElementById("division-view").innerHTML = renderDivisionView(teams, prevTeams);
     setStatus("", false);

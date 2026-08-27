@@ -11,24 +11,24 @@ Two views, toggled by tab:
 
 Each table shows record, games played/remaining, win%, games back (and wild-card games back on the league view), plus a full grid of pairwise **magic numbers**: the combined wins (row team) + losses (column team) needed for the row team to guarantee finishing ahead of that specific column team. Cells show `NC` ("not clinched") when the column team currently has the better record. Rows are tinted to flag a team that's clinched its division, clinched a wild card, or been eliminated.
 
-Magic number cells are also flagged when they've dropped since the previous day: a single &#9660; for down 1, a double &#9660;&#9660; (with a stronger highlight) for down 2 or more — the latter usually means a doubleheader sweep, or that the rival lost twice in one day.
+Magic number cells are also flagged when they've dropped since this morning's snapshot (taken before any of today's games start): a single &#9660; for down 1, a double &#9660;&#9660; (with a stronger highlight) for down 2 or more — the latter usually means a doubleheader sweep, or that the rival lost twice in one day. Since the comparison is against a live-refreshing page, this updates over the course of the day as today's games finish — no need to wait until tomorrow.
 
 ## Files
 
 - `index.html` — page structure, loads Google Fonts (Roboto Condensed) and Tabler Icons to match the styling used on [curling.tatertech.net](https://curling.tatertech.net)
 - `style.css` — all styling, using the same CSS variable tokens (colors, spacing, table conventions) as the curling scorekeeper site for a consistent look across tatertech.net properties
 - `app.js` — fetches and computes everything client-side; no backend or build step
-- `scripts/snapshot.js` — daily cron job (Node 18+, no deps) that writes the previous-day wins/losses snapshot `app.js` diffs against
+- `scripts/snapshot.js` — daily cron job (Node 18+, no deps) that writes the morning wins/losses baseline `app.js` diffs against
 
-## Day-over-day snapshots
+## Since-this-morning snapshots
 
-`app.js` itself has no backend or memory — every page load starts fresh from the live MLB Stats API. To flag magic numbers that changed since yesterday, a separate daily job writes a tiny snapshot of every team's wins/losses to S3, dated by the US-Eastern "baseball day":
+`app.js` itself has no backend or memory — every page load starts fresh from the live MLB Stats API. To flag magic numbers that changed since this morning, a separate daily job writes a tiny snapshot of every team's wins/losses to S3, dated by the US-Eastern "baseball day":
 
 ```
 s3://tatermetrics.tatertech.net/mlb/data/YYYY-MM-DD.json
 ```
 
-`.github/workflows/mlb-snapshot.yml` runs `scripts/snapshot.js` once a day (09:15 UTC — after all games, including West Coast doubleheaders, should be final), then uploads the result using the same GitHub Actions OIDC deploy role already set up in `terraform/modules/github_oidc`. On the next page load, `app.js` fetches yesterday's file (falling back up to 4 days if one's missing) and re-derives what each pairwise magic number *was* as of that snapshot, since the formula only depends on wins/losses.
+`.github/workflows/mlb-snapshot.yml` runs `scripts/snapshot.js` once a day (09:15 UTC — after all of yesterday's games, including West Coast games, are final, but before today's games start), then uploads the result using the same GitHub Actions OIDC deploy role already set up in `terraform/modules/github_oidc`. On every page load, `app.js` fetches *today's* file (falling back up to 4 days if today's isn't up yet, e.g. a missed cron run) and re-derives what each pairwise magic number *was* at that snapshot, since the formula only depends on wins/losses. That means a cell can flip to "down 1" mid-afternoon as soon as that game goes final — no need to wait until the next day.
 
 Requires two repo-level Actions variables (Settings → Actions → Variables), both already surfaced as terraform outputs:
 
