@@ -508,6 +508,28 @@ td.magic-num {
   color: var(--color-primary-dark);
 }
 
+/* Day-over-day magic number changes: down 1 = amber, down 2+ (e.g. a
+   doubleheader swept, or a rival losing twice) = red. */
+td.magic-num.mn-down1 {
+  background: var(--color-amber-bg);
+}
+td.magic-num.mn-down2 {
+  background: var(--color-red-bg);
+}
+
+.mn-arrow {
+  display: inline-block;
+  margin-left: 2px;
+  font-size: 0.55rem;
+  line-height: 1;
+  vertical-align: middle;
+  color: var(--color-amber-text);
+}
+.mn-arrow.mn-arrow-double {
+  color: var(--color-red-text);
+  letter-spacing: -2px;
+}
+
 /* Playoff-cutoff dividers in the League Standings table:
    bold line after the 3 division leaders, and after all 6 current playoff teams. */
 tr.lineTop3 td {
@@ -643,4 +665,5 @@ a, button {
   .team-logo-header { height: 15px; width: 15px; }
   .team-logo-diag { height: 14px; width: 14px; }
   .status-tag { display: none; }
+  .mn-arrow { display: none; }
 }

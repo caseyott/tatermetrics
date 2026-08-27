@@ -1,0 +1,58 @@
+name: MLB daily snapshot
+
+# Runs once a day, well after all MLB games (including West Coast games and
+# doubleheaders) should be final, and uploads a small wins/losses snapshot
+# to S3. app.js reads yesterday's file the next day to flag magic numbers
+# that dropped. Re-running for the same day (workflow_dispatch, or a retry)
+# just overwrites that day's file — safe.
+#
+# Requires two repo Actions variables (Settings > Actions > Variables),
+# matching terraform/outputs.tf:
+#   AWS_ROLE_ARN       - module.github_oidc.deploy_role_arn
+#   CF_DISTRIBUTION_ID - module.cloudfront.cloudfront_distribution_id
+
+on:
+  schedule:
+    # 09:15 UTC = 5:15am ET (EDT) / 4:15am ET (EST).
+    - cron: "15 9 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  BUCKET_NAME: tatermetrics.tatertech.net
+  SNAPSHOT_PREFIX: mlb/data
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate snapshot
+        run: node mlb/scripts/snapshot.js ./out
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Upload snapshot to S3
+        run: |
+          aws s3 cp ./out/ "s3://${BUCKET_NAME}/${SNAPSHOT_PREFIX}/" \
+            --recursive \
+            --content-type application/json \
+            --cache-control "public, max-age=3600"
+
+      - name: Invalidate CloudFront cache for the new snapshot
+        if: ${{ vars.CF_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CF_DISTRIBUTION_ID }}" \
+            --paths "/${SNAPSHOT_PREFIX}/*"

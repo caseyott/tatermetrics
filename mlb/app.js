@@ -143,6 +143,54 @@ function magicNumber(a, b) {
   return SEASON_TOTAL_GAMES + 1 - a.wins - b.losses;
 }
 
+/* =========================================================
+   Day-over-day magic number tracking
+   ========================================================= */
+
+const SNAPSHOT_LOOKBACK_DAYS = 4; // in case a day's snapshot is missing (e.g. cron hiccup)
+
+function easternDateString(d = new Date()) {
+  // MLB schedules by the Eastern calendar day, regardless of the viewer's
+  // own time zone or when the daily snapshot cron happens to fire in UTC.
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
+}
+
+function addDays(dateStr, delta) {
+  // Shift at UTC noon so the +/- day math never gets tripped up by DST.
+  const d = new Date(`${dateStr}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return easternDateString(d);
+}
+
+/** Walk backwards from yesterday looking for the most recent snapshot file. */
+async function fetchPreviousSnapshot() {
+  const todayET = easternDateString();
+  for (let back = 1; back <= SNAPSHOT_LOOKBACK_DAYS; back++) {
+    const dateStr = addDays(todayET, -back);
+    try {
+      const res = await fetch(`data/${dateStr}.json`, { cache: "no-store" });
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (json && json.teams) return json;
+    } catch (err) {
+      // this date's file is missing or unreadable — fall back further
+    }
+  }
+  return null;
+}
+
+/** How much rowTeam's magic number against colTeam has dropped since the last
+ *  snapshot (positive = closer to clinching). Null if we have no prior data
+ *  for either team. */
+function magicNumberDelta(rowTeam, colTeam, prevTeams) {
+  if (!prevTeams) return null;
+  const prevRow = prevTeams[rowTeam.id];
+  const prevCol = prevTeams[colTeam.id];
+  if (!prevRow || !prevCol) return null;
+  const prevMn = SEASON_TOTAL_GAMES + 1 - prevRow.wins - prevCol.losses;
+  return prevMn - magicNumber(rowTeam, colTeam);
+}
+
 function isAheadOf(a, b) {
   if (a.winPct !== b.winPct) return a.winPct > b.winPct;
   if (a.wins !== b.wins) return a.wins > b.wins;
@@ -191,14 +239,24 @@ function buildDivisionOrder(divisionTeams) {
   return [...divisionTeams].sort((a, b) => a.divisionRank - b.divisionRank);
 }
 
-function renderMatrixCell(rowTeam, colTeam) {
+function renderMatrixCell(rowTeam, colTeam, prevTeams) {
   if (rowTeam.id === colTeam.id) {
     return `<td class="diag"><img class="team-logo-diag" src="${logoUrl(rowTeam)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"></td>`;
   }
   if (isAheadOf(rowTeam, colTeam)) {
     const mn = magicNumber(rowTeam, colTeam);
     if (mn <= 0) return '<td class="magic-num">&ndash;</td>';
-    return `<td class="magic-num">${mn}</td>`;
+    const delta = magicNumberDelta(rowTeam, colTeam, prevTeams);
+    let cls = "magic-num";
+    let badge = "";
+    if (delta === 1) {
+      cls += " mn-down1";
+      badge = '<span class="mn-arrow" title="down 1 since yesterday">&#9660;</span>';
+    } else if (delta !== null && delta >= 2) {
+      cls += " mn-down2";
+      badge = `<span class="mn-arrow mn-arrow-double" title="down ${delta} since yesterday (doubleheader?)">&#9660;&#9660;</span>`;
+    }
+    return `<td class="${cls}">${mn}${badge}</td>`;
   }
   return '<td class="nc">NC</td>';
 }
@@ -248,7 +306,7 @@ function renderTable(rows, columns, opts) {
     body += `<td class="record-cell">${gbDisplay(opts.gbField === "league" ? team.leagueGamesBack : team.divisionGamesBack)}</td>`;
     if (showWcGb) body += `<td class="record-cell">${gbDisplay(team.wildCardGamesBack)}</td>`;
     columns.forEach((col) => {
-      body += renderMatrixCell(team, col);
+      body += renderMatrixCell(team, col, opts.prevTeams);
     });
     body += "</tr>";
   });
@@ -257,7 +315,7 @@ function renderTable(rows, columns, opts) {
   return `<div class="table-scroll"><table class="standings">${colgroup}<thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 
-function renderLeagueView(teams) {
+function renderLeagueView(teams, prevTeams) {
   let html = "";
   LEAGUES.forEach((lg) => {
     const leagueTeams = teams.filter((t) => t.leagueId === lg.id);
@@ -271,13 +329,14 @@ function renderLeagueView(teams) {
       gbField: "league",
       showFullName: false,
       dividerAfter: { 3: "lineTop3", 6: "lineTop6" },
+      prevTeams,
     });
     html += "</div>";
   });
   return html;
 }
 
-function renderDivisionView(teams) {
+function renderDivisionView(teams, prevTeams) {
   const divisions = {};
   teams.forEach((t) => {
     if (!divisions[t.divisionName]) divisions[t.divisionName] = [];
@@ -295,7 +354,7 @@ function renderDivisionView(teams) {
     const ordered = buildDivisionOrder(divisions[divName]);
     const headerCls = divisions[divName][0].leagueId === 103 ? " leagueBannerAL" : "";
     html += `<div class="division-block"><h3 class="${headerCls}">${divName}</h3>`;
-    html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division" });
+    html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division", prevTeams });
     html += "</div>";
   });
   return html;
@@ -311,9 +370,13 @@ function setStatus(msg, isError) {
 async function loadAndRender() {
   setStatus("Loading live standings…", false);
   try {
-    const { teams, lastUpdated } = await fetchAllStandings();
-    document.getElementById("league-view").innerHTML = renderLeagueView(teams);
-    document.getElementById("division-view").innerHTML = renderDivisionView(teams);
+    const [{ teams, lastUpdated }, prevSnapshot] = await Promise.all([
+      fetchAllStandings(),
+      fetchPreviousSnapshot(),
+    ]);
+    const prevTeams = prevSnapshot ? prevSnapshot.teams : null;
+    document.getElementById("league-view").innerHTML = renderLeagueView(teams, prevTeams);
+    document.getElementById("division-view").innerHTML = renderDivisionView(teams, prevTeams);
     setStatus("", false);
     const stamp = lastUpdated ? new Date(lastUpdated) : new Date();
     document.getElementById("last-updated").textContent = `Data last updated: ${stamp.toLocaleString()} (page loaded ${new Date().toLocaleString()})`;
