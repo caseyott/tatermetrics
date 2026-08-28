@@ -193,8 +193,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.68rem;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.85rem;
   font-weight: 700;
   line-height: 1.3;
   color: var(--color-scoreboard-text);
@@ -209,9 +209,9 @@ body {
   border: none;
   color: rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  padding: 0 0.7rem;
-  min-width: 36px;
-  font-size: 1.05rem;
+  padding: 0 0.875rem;
+  min-width: 45px;
+  font-size: 1.31rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -237,16 +237,16 @@ body {
 
 .gameCard {
   flex-shrink: 0;
-  width: 148px;
-  padding: 0.45rem 0.65rem;
+  width: 124px;
+  padding: 0.5625rem 0.5rem;
   border-right: 1px solid var(--color-scoreboard-border);
   color: var(--color-scoreboard-text);
-  font-size: 0.72rem;
+  font-size: 0.9rem;
 }
 
 .gameCard.noGames {
   width: auto;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.25rem;
   color: var(--color-scoreboard-muted);
   display: flex;
   align-items: center;
@@ -255,9 +255,9 @@ body {
 .gameCard .gameStatus {
   color: var(--color-scoreboard-muted);
   font-weight: 700;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.375rem;
   text-transform: uppercase;
-  font-size: 0.62rem;
+  font-size: 0.775rem;
   letter-spacing: 0.03em;
   white-space: nowrap;
   overflow: hidden;
@@ -272,8 +272,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.12rem 0;
-  gap: 0.4rem;
+  padding: 0.15rem 0;
+  gap: 0.5rem;
 }
 
 .gameCard .gameTeamRow.winner .gameScore,
@@ -284,14 +284,14 @@ body {
 .gameCard .gameTeamName {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.375rem;
   min-width: 0;
   overflow: hidden;
 }
 
 .gameCard .gameTeamName img {
-  height: 16px;
-  width: 16px;
+  height: 20px;
+  width: 20px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -308,8 +308,8 @@ body {
 }
 
 @media (max-width: 640px) {
-  .scoreboardDate { padding: 0.4rem 0.6rem; font-size: 0.6rem; }
-  .gameCard { width: 118px; font-size: 0.65rem; padding: 0.4rem 0.5rem; }
+  .scoreboardDate { padding: 0.5rem 0.75rem; font-size: 0.75rem; }
+  .gameCard { width: 111px; font-size: 0.8125rem; padding: 0.5rem 0.625rem; }
 }
 
 /* =========================================================
@@ -545,16 +545,20 @@ table.standings th.team-cell {
   left: 0;
   background: var(--color-surface);
   z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 /* Pin the W/L result badge to the right edge of the column, regardless of
    how long the team name/abbreviation to its left is, so badges line up
-   down the column instead of drifting with name length. */
-table.standings td.team-cell {
+   down the column instead of drifting with name length. This flex wrapper
+   lives *inside* td.team-cell rather than replacing its display — the td
+   itself must stay display:table-cell, otherwise the table's row-height/
+   border alignment breaks (each row's cells no longer line up). */
+.team-cell-inner {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 6px;
+  width: 100%;
 }
 
 .team-cell-main {
