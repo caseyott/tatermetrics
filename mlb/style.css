@@ -677,6 +677,21 @@ tr.eliminated td.record-cell {
 .status-tag.wc { background: var(--color-amber-text); color: #fff; }
 .status-tag.elim { background: var(--color-red-text); color: #fff; }
 
+/* Same-day result badge (W/L) in the team column. */
+.result-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-left: 6px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 20px;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+  color: #fff;
+}
+.result-badge.win { background: var(--color-green-text); }
+.result-badge.loss { background: var(--color-red-text); }
+
 /* =========================================================
    By Date comparison mode — graduated diff shading
    A historical date can be compared to today or another date. Since the
@@ -800,4 +815,5 @@ a, button {
   .team-logo-diag { height: 14px; width: 14px; }
   .status-tag { display: none; }
   .mn-arrow { display: none; }
+  .result-badge { display: none; }
 }

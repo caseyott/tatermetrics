@@ -346,7 +346,7 @@ async function loadHistoryView(dateStr) {
   document.getElementById("history-league").innerHTML = "";
   document.getElementById("history-division").innerHTML = "";
   try {
-    const snapshot = await fetchSnapshotForDate(dateStr);
+    const [snapshot, resultsMap] = await Promise.all([fetchSnapshotForDate(dateStr), fetchResultsMap(dateStr)]);
     if (!snapshot) {
       setHistoryStatus(`No snapshot found for ${dateStr} yet.`, true);
       return;
@@ -366,9 +366,9 @@ async function loadHistoryView(dateStr) {
     }
 
     document.getElementById("history-league").innerHTML =
-      '<h2 class="historySectionTitle">League Standings</h2>' + renderLeagueView(teams, null, compare);
+      '<h2 class="historySectionTitle">League Standings</h2>' + renderLeagueView(teams, null, compare, resultsMap);
     document.getElementById("history-division").innerHTML =
-      '<h2 class="historySectionTitle">Division Standings</h2>' + renderDivisionView(teams, null, compare);
+      '<h2 class="historySectionTitle">Division Standings</h2>' + renderDivisionView(teams, null, compare, resultsMap);
     setHistoryStatus(compareError, !!compareError);
   } catch (err) {
     console.error(err);
@@ -472,9 +472,17 @@ function renderMatrixCell(rowTeam, colTeam, prevTeams, compare) {
   return '<td class="nc">NC</td>';
 }
 
-function teamCell(team, showFullName) {
+function resultBadge(team, resultsMap) {
+  const result = resultsMap && resultsMap[team.id];
+  if (!result) return "";
+  const cls = result === "W" ? "win" : "loss";
+  const title = result === "W" ? "Won that day's game" : "Lost that day's game";
+  return `<span class="result-badge ${cls}" title="${title}">${result}</span>`;
+}
+
+function teamCell(team, showFullName, resultsMap) {
   const nameSpan = showFullName ? `<span class="team-name">${team.shortName}</span>` : "";
-  return `<td class="team-cell" title="${team.name}"><img class="team-logo" src="${logoUrl(team)}" alt="" loading="lazy" onerror="this.style.display='none'">${team.abbr}${statusTag(team)}${nameSpan}</td>`;
+  return `<td class="team-cell" title="${team.name}"><img class="team-logo" src="${logoUrl(team)}" alt="" loading="lazy" onerror="this.style.display='none'">${team.abbr}${statusTag(team)}${resultBadge(team, resultsMap)}${nameSpan}</td>`;
 }
 
 /** Build a <colgroup> so the table is forced to fit the container width (no horizontal
@@ -510,7 +518,7 @@ function renderTable(rows, columns, opts) {
     const cls = statusClass(team);
     const divider = dividerAfter[i + 1] || "";
     body += `<tr class="${[cls, divider].filter(Boolean).join(" ")}">`;
-    body += teamCell(team, showFullName);
+    body += teamCell(team, showFullName, opts.resultsMap);
     body += `<td class="record-cell">${team.gamesPlayed}/${team.gamesRemaining}</td>`;
 
     // Bigger is better for wins, smaller is better for losses — sign the
@@ -538,7 +546,7 @@ function renderTable(rows, columns, opts) {
   return `<div class="table-scroll"><table class="standings">${colgroup}<thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 
-function renderLeagueView(teams, prevTeams, compare) {
+function renderLeagueView(teams, prevTeams, compare, resultsMap) {
   let html = "";
   LEAGUES.forEach((lg) => {
     const leagueTeams = teams.filter((t) => t.leagueId === lg.id);
@@ -550,17 +558,17 @@ function renderLeagueView(teams, prevTeams, compare) {
     html += renderTable(ordered, ordered, {
       showWcGb: true,
       gbField: "league",
-      showFullName: false,
       dividerAfter: { 3: "lineTop3", 6: "lineTop6" },
       prevTeams,
       compare,
+      resultsMap,
     });
     html += "</div>";
   });
   return html;
 }
 
-function renderDivisionView(teams, prevTeams, compare) {
+function renderDivisionView(teams, prevTeams, compare, resultsMap) {
   const divisions = {};
   teams.forEach((t) => {
     if (!divisions[t.divisionName]) divisions[t.divisionName] = [];
@@ -578,7 +586,7 @@ function renderDivisionView(teams, prevTeams, compare) {
     const ordered = buildDivisionOrder(divisions[divName]);
     const headerCls = divisions[divName][0].leagueId === 103 ? " leagueBannerAL" : "";
     html += `<div class="division-block"><h3 class="${headerCls}">${divName}</h3>`;
-    html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division", prevTeams, compare });
+    html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division", prevTeams, compare, resultsMap });
     html += "</div>";
   });
   return html;
@@ -594,13 +602,14 @@ function setStatus(msg, isError) {
 async function loadAndRender() {
   setStatus("Loading live standings…", false);
   try {
-    const [{ teams, lastUpdated }, latestSnapshot] = await Promise.all([
+    const [{ teams, lastUpdated }, latestSnapshot, resultsMap] = await Promise.all([
       fetchAllStandings(),
       fetchLatestSnapshot(),
+      fetchResultsMap(todayISODate()),
     ]);
     const prevTeams = latestSnapshot ? latestSnapshot.teams : null;
-    document.getElementById("league-view").innerHTML = renderLeagueView(teams, prevTeams);
-    document.getElementById("division-view").innerHTML = renderDivisionView(teams, prevTeams);
+    document.getElementById("league-view").innerHTML = renderLeagueView(teams, prevTeams, null, resultsMap);
+    document.getElementById("division-view").innerHTML = renderDivisionView(teams, prevTeams, null, resultsMap);
     setStatus("", false);
     const stamp = lastUpdated ? new Date(lastUpdated) : new Date();
     document.getElementById("last-updated").textContent = `Data last updated: ${stamp.toLocaleString()} (page loaded ${new Date().toLocaleString()})`;
@@ -624,6 +633,33 @@ function todayISODate() {
 
 function formatGameTime(iso) {
   return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+}
+
+/** {teamId: "W"|"L"} for every *finished* game on `dateStr`, so the team
+ *  column can show a same-day result badge. Used both for today (live
+ *  views) and for whichever date is selected in "By Date" — since a
+ *  history snapshot is taken before that day's games, the badge shows what
+ *  happened afterward. A doubleheader's second game simply overwrites the
+ *  first, since the schedule API returns games in start-time order. */
+async function fetchResultsMap(dateStr) {
+  try {
+    const res = await fetch(`${SCHEDULE_BASE}?sportId=1&date=${dateStr}&hydrate=linescore,team`);
+    if (!res.ok) return {};
+    const json = await res.json();
+    const games = (json.dates && json.dates[0] && json.dates[0].games) || [];
+    const map = {};
+    games.forEach((game) => {
+      if ((game.status || {}).abstractGameState !== "Final") return;
+      const away = game.teams.away;
+      const home = game.teams.home;
+      if (away && away.team) map[away.team.id] = away.isWinner ? "W" : "L";
+      if (home && home.team) map[home.team.id] = home.isWinner ? "W" : "L";
+    });
+    return map;
+  } catch (err) {
+    console.error(err);
+    return {};
+  }
 }
 
 function gameStatusLabel(game) {
