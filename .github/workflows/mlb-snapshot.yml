@@ -1,10 +1,15 @@
 name: MLB daily snapshot
 
-# Runs once a day, well after all MLB games (including West Coast games and
-# doubleheaders) should be final, and uploads a small wins/losses snapshot
-# to S3. app.js reads yesterday's file the next day to flag magic numbers
-# that dropped. Re-running for the same day (workflow_dispatch, or a retry)
-# just overwrites that day's file — safe.
+# Manual/backfill trigger only — the daily run itself is now handled by a
+# Lambda + EventBridge Scheduler (terraform/modules/lambda_snapshot), which
+# runs on a named timezone (no UTC/DST cron math) and doesn't depend on
+# GitHub's shared-runner scheduler actually firing. This workflow used to
+# also run on a `schedule:` trigger, but that cron reliably failed to fire
+# (including on its very first scheduled occurrence), which is what drove
+# the move to Lambda. Kept around for manual re-runs and backfills — uploads
+# a small wins/losses snapshot to S3. app.js reads yesterday's file the next
+# day to flag magic numbers that dropped. Re-running for the same day just
+# overwrites that day's file — safe.
 #
 # Requires two repo Actions variables (Settings > Actions > Variables),
 # matching terraform/outputs.tf:
@@ -12,9 +17,6 @@ name: MLB daily snapshot
 #   CF_DISTRIBUTION_ID - module.cloudfront.cloudfront_distribution_id
 
 on:
-  schedule:
-    # 09:15 UTC = 5:15am ET (EDT) / 4:15am ET (EST).
-    - cron: "15 9 * * *"
   workflow_dispatch: {}
 
 permissions:

@@ -37,3 +37,21 @@ variable "github_repo" {
   type        = string
   default     = "caseyott/tatermetrics"
 }
+
+variable "mlb_snapshot_prefix" {
+  description = "S3 key prefix the daily MLB snapshot Lambda writes under."
+  type        = string
+  default     = "mlb/data"
+}
+
+variable "mlb_snapshot_schedule" {
+  description = "EventBridge Scheduler cron expression for the daily MLB snapshot (evaluated in mlb_snapshot_timezone, not UTC)."
+  type        = string
+  default     = "cron(15 5 * * ? *)"
+}
+
+variable "mlb_snapshot_timezone" {
+  description = "IANA timezone the MLB snapshot schedule is evaluated in."
+  type        = string
+  default     = "America/New_York"
+}

@@ -19,7 +19,9 @@ Magic number cells are also flagged when they've dropped since this morning's sn
 - `index.html` — page structure, loads Google Fonts (Roboto Condensed) and Tabler Icons to match the styling used on [curling.tatertech.net](https://curling.tatertech.net)
 - `style.css` — all styling, using the same CSS variable tokens (colors, spacing, table conventions) as the curling scorekeeper site for a consistent look across tatertech.net properties
 - `app.js` — fetches and computes everything client-side; no backend or build step
-- `scripts/snapshot.js` — daily cron job (Node 18+, no deps) that writes each day's full standings snapshot to S3
+- `scripts/lib/standings.js` — shared MLB Stats API fetch + shape logic, used by both entry points below
+- `scripts/snapshot.js` — CLI entry point (Node 18+, no deps); manual/local runs and backfills
+- `scripts/lambda/index.js` — Lambda entry point that writes the snapshot straight to S3 and invalidates CloudFront; this is what runs daily
 
 ## Daily snapshots
 
@@ -29,12 +31,16 @@ Magic number cells are also flagged when they've dropped since this morning's sn
 s3://tatermetrics.tatertech.net/mlb/data/YYYY-MM-DD.json
 ```
 
-`.github/workflows/mlb-snapshot.yml` runs `scripts/snapshot.js` once a day (09:15 UTC — after all of yesterday's games, including West Coast games, are final, but before today's games start), then uploads the result using the same GitHub Actions OIDC deploy role already set up in `terraform/modules/github_oidc`. This snapshot feeds two features:
+The daily run itself is a Lambda function (`scripts/lambda/index.js`) on an EventBridge Scheduler schedule — see `terraform/modules/lambda_snapshot`. It's scheduled for 5:15am America/New_York (after all of yesterday's games, including West Coast games, are final, but before today's games start), using a named timezone rather than a UTC cron so DST transitions don't need manual re-editing twice a year. This replaced a `schedule:` trigger on `.github/workflows/mlb-snapshot.yml`, which reliably failed to fire (including on its very first scheduled occurrence) — GitHub's shared-runner cron scheduler can silently drop a scheduled run.
 
-- **Since-this-morning highlighting** — on every page load, `app.js` fetches *today's* file (falling back up to 4 days if today's isn't up yet, e.g. a missed cron run) and re-derives what each pairwise magic number *was* at that snapshot, since the formula only depends on wins/losses. That means a cell can flip to "down 1" mid-afternoon as soon as that game goes final — no need to wait until the next day.
+`.github/workflows/mlb-snapshot.yml` still exists but is `workflow_dispatch`-only now — useful for manual re-runs and backfills via `scripts/snapshot.js`, uploaded using the same GitHub Actions OIDC deploy role set up in `terraform/modules/github_oidc`.
+
+This snapshot feeds two features:
+
+- **Since-this-morning highlighting** — on every page load, `app.js` fetches *today's* file (falling back up to 4 days if today's isn't up yet, e.g. a missed run) and re-derives what each pairwise magic number *was* at that snapshot, since the formula only depends on wins/losses. That means a cell can flip to "down 1" mid-afternoon as soon as that game goes final — no need to wait until the next day.
 - **The "By Date" tab** — fetches a specific date's file by name and rebuilds the full League/Division views from every field in it, giving a frozen look at how standings looked that morning.
 
-Requires two repo-level Actions variables (Settings → Actions → Variables), both already surfaced as terraform outputs:
+The manual workflow requires two repo-level Actions variables (Settings → Actions → Variables), both already surfaced as terraform outputs:
 
 - `AWS_ROLE_ARN` = `terraform output github_oidc_deploy_role_arn`
 - `CF_DISTRIBUTION_ID` = `terraform output cloudfront_distribution_id`

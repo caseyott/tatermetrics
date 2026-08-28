@@ -26,3 +26,13 @@ output "github_oidc_deploy_role_arn" {
   description = "IAM role ARN GitHub Actions assumes to sync the bucket and invalidate CloudFront. Set as AWS_ROLE_ARN in the repo's GitHub Actions variables."
   value       = module.github_oidc.deploy_role_arn
 }
+
+output "mlb_snapshot_function_name" {
+  description = "Name of the daily MLB snapshot Lambda function."
+  value       = module.mlb_snapshot.function_name
+}
+
+output "mlb_snapshot_schedule_name" {
+  description = "Name of the EventBridge Scheduler schedule that triggers the daily MLB snapshot."
+  value       = module.mlb_snapshot.schedule_name
+}
