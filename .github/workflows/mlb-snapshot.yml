@@ -13,8 +13,8 @@ name: MLB daily snapshot
 
 on:
   schedule:
-    # 09:15 UTC = 5:15am ET (EDT) / 4:15am ET (EST).
-    - cron: "15 9 * * *"
+    # 13:00 UTC = 8:00am CT (CDT) / 7:00am CT (CST).
+    - cron: "0 13 * * *"
   workflow_dispatch: {}
 
 permissions:
