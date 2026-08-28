@@ -62,6 +62,16 @@
       <label for="history-date">Standings as of</label>
       <select id="history-date"></select>
     </div>
+    <div class="historyCompareRow">
+      <label class="historyCompareLabel" for="history-compare-toggle">
+        <input type="checkbox" id="history-compare-toggle">
+        Compare to
+      </label>
+      <select id="history-compare-target" disabled>
+        <option value="today">Today (live)</option>
+      </select>
+    </div>
+    <p class="historyCompareLegend" id="history-compare-legend" hidden>Shaded cells changed vs. the comparison &mdash; darker shade means a bigger difference. Green means better than the comparison, red means worse.</p>
     <p class="historyNote">* Standings as of 5:15 ET, before that day's games started.</p>
     <div id="history-status" class="status"></div>
     <div id="history-league"></div>

@@ -413,6 +413,59 @@ body {
   margin: -0.35rem 0 0.5rem;
 }
 
+.historyCompareRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.historyCompareLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.historyCompareLabel input {
+  cursor: pointer;
+}
+
+.historyCompareRow select {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.historyCompareRow select:hover {
+  border-color: var(--color-primary);
+}
+
+.historyCompareRow select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.historyCompareLegend {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  margin: -0.1rem 0 0.6rem;
+}
+
+.historyCompareLegend[hidden] {
+  display: none;
+}
+
 .historySectionTitle {
   font-size: 0.95rem;
   font-weight: 700;
@@ -623,6 +676,30 @@ tr.eliminated td.record-cell {
 .status-tag.div { background: var(--color-green-text); color: #fff; }
 .status-tag.wc { background: var(--color-amber-text); color: #fff; }
 .status-tag.elim { background: var(--color-red-text); color: #fff; }
+
+/* =========================================================
+   By Date comparison mode — graduated diff shading
+   A historical date can be compared to today or another date. Since the
+   gap between two arbitrary dates can be any size N (not just 1 or 2 like
+   the live "since this morning" arrows), differences are shown as a
+   4-step shading scale instead: darker = bigger change. Green = the
+   displayed date is better than the comparison point, red = worse.
+   Selectors match the specificity of the tr.clinched-* record-cell rules
+   above (and come after them) so the diff shade wins on rows that are
+   also clinched/eliminated. ========================================================= */
+tr td.record-cell.diff-better-1, td.magic-num.diff-better-1 { background: rgba(22, 163, 74, 0.16); }
+tr td.record-cell.diff-better-2, td.magic-num.diff-better-2 { background: rgba(22, 163, 74, 0.30); }
+tr td.record-cell.diff-better-3, td.magic-num.diff-better-3 { background: rgba(22, 163, 74, 0.46); }
+tr td.record-cell.diff-better-4, td.magic-num.diff-better-4 { background: rgba(22, 163, 74, 0.62); }
+
+tr td.record-cell.diff-worse-1, td.magic-num.diff-worse-1 { background: rgba(220, 38, 38, 0.16); }
+tr td.record-cell.diff-worse-2, td.magic-num.diff-worse-2 { background: rgba(220, 38, 38, 0.30); }
+tr td.record-cell.diff-worse-3, td.magic-num.diff-worse-3 { background: rgba(220, 38, 38, 0.46); }
+tr td.record-cell.diff-worse-4, td.magic-num.diff-worse-4 { background: rgba(220, 38, 38, 0.62); }
+
+td[class*="diff-better-"], td[class*="diff-worse-"] {
+  cursor: help;
+}
 
 /* =========================================================
    Legend

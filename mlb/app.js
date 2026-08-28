@@ -212,14 +212,47 @@ async function fetchLatestSnapshot() {
 
 /** How much rowTeam's magic number against colTeam has dropped since the last
  *  snapshot (positive = closer to clinching). Null if we have no prior data
- *  for either team. */
-function magicNumberDelta(rowTeam, colTeam, prevTeams) {
-  if (!prevTeams) return null;
-  const prevRow = prevTeams[rowTeam.id];
-  const prevCol = prevTeams[colTeam.id];
-  if (!prevRow || !prevCol) return null;
-  const prevMn = SEASON_TOTAL_GAMES + 1 - prevRow.wins - prevCol.losses;
-  return prevMn - magicNumber(rowTeam, colTeam);
+ *  for either team. Also reused by "By Date" comparison mode below, where
+ *  `otherTeams` is whichever date/live standings the user picked to compare
+ *  against rather than strictly "the previous snapshot". */
+function magicNumberDelta(rowTeam, colTeam, otherTeams) {
+  if (!otherTeams) return null;
+  const otherRow = otherTeams[rowTeam.id];
+  const otherCol = otherTeams[colTeam.id];
+  if (!otherRow || !otherCol) return null;
+  const otherMn = SEASON_TOTAL_GAMES + 1 - otherRow.wins - otherCol.losses;
+  return otherMn - magicNumber(rowTeam, colTeam);
+}
+
+/* =========================================================
+   "By Date" comparison mode — graduated diff shading
+   A historical date can be compared to today (live) or another available
+   date. Unlike the "since this morning" arrows above (which only ever see
+   a gap of 1 or 2 games), an arbitrary date-to-date gap can be any size N,
+   so differences are shown as a 4-step shading scale instead: darker means
+   a bigger change. "Better" (green) always means the currently-displayed
+   date's number is more favorable than the comparison point's — more wins,
+   fewer losses, or a smaller magic number — regardless of whether that
+   comparison point is chronologically before or after it.
+   ========================================================= */
+
+/** Build {cls, title} for a diff cell, or {cls:"", title:""} when there's
+ *  nothing to highlight. `delta` should already be signed so that positive
+ *  = better (displayed value) than the comparison, negative = worse. */
+function diffShade(delta, label, statName) {
+  if (!delta) return { cls: "", title: "" };
+  const better = delta > 0;
+  const bucket = Math.min(Math.abs(delta), 4);
+  const cls = `diff-${better ? "better" : "worse"}-${bucket}`;
+  const title = `${statName}: ${better ? "better" : "worse"} by ${Math.abs(delta)} vs ${label}`;
+  return { cls, title };
+}
+
+/** Render a stat <td>, shaded/titled when `delta` is non-zero. */
+function diffTd(baseClass, value, delta, label, statName) {
+  const { cls, title } = diffShade(delta, label, statName);
+  if (!cls) return `<td class="${baseClass}">${value}</td>`;
+  return `<td class="${baseClass} ${cls}" title="${title}">${value}</td>`;
 }
 
 /* =========================================================
@@ -261,7 +294,54 @@ function setHistoryStatus(msg, isError) {
   el.style.display = msg ? "block" : "none";
 }
 
+/** Raw {id: {wins, losses}} map for today's live standings, in the same
+ *  shape as a stored snapshot's `teams` field, so it can be diffed the
+ *  same way as any other date. */
+async function fetchTodayRaw() {
+  const { teams } = await fetchAllStandings();
+  const map = {};
+  teams.forEach((t) => {
+    map[t.id] = { wins: t.wins, losses: t.losses };
+  });
+  return map;
+}
+
+/** Load whichever comparison point the user picked: "today" (live) or
+ *  another snapshot date. Returns the raw {id: {wins, losses}} map, or
+ *  null if it couldn't be loaded. */
+async function loadCompareTeams(target) {
+  if (target === "today") return fetchTodayRaw();
+  const snapshot = await fetchSnapshotForDate(target);
+  return snapshot ? snapshot.teams : null;
+}
+
+/** Whichever comparison target is currently selected, or null if compare
+ *  mode is off. */
+function getCompareTarget() {
+  const toggle = document.getElementById("history-compare-toggle");
+  const targetSel = document.getElementById("history-compare-target");
+  if (!toggle || !targetSel || !toggle.checked) return null;
+  return targetSel.value;
+}
+
+/** Refill the "Compare to" dropdown with every available date except the
+ *  one currently shown in "Standings as of" (comparing a date to itself is
+ *  meaningless), keeping the previous selection if it's still valid. */
+function populateCompareOptions(excludeDate) {
+  const targetSel = document.getElementById("history-compare-target");
+  if (!targetSel) return;
+  const prevValue = targetSel.value;
+  const dateOptions = historyDateOptions()
+    .filter((d) => d !== excludeDate)
+    .map((d) => `<option value="${d}">${d}</option>`)
+    .join("");
+  targetSel.innerHTML = `<option value="today">Today (live)</option>${dateOptions}`;
+  const stillValid = Array.from(targetSel.options).some((o) => o.value === prevValue);
+  targetSel.value = stillValid ? prevValue : "today";
+}
+
 async function loadHistoryView(dateStr) {
+  populateCompareOptions(dateStr);
   setHistoryStatus(`Loading standings for ${dateStr}…`, false);
   document.getElementById("history-league").innerHTML = "";
   document.getElementById("history-division").innerHTML = "";
@@ -272,11 +352,24 @@ async function loadHistoryView(dateStr) {
       return;
     }
     const teams = teamsFromSnapshot(snapshot);
+
+    const target = getCompareTarget();
+    let compare = null;
+    let compareError = "";
+    if (target) {
+      const compareTeamsRaw = await loadCompareTeams(target);
+      if (compareTeamsRaw) {
+        compare = { teams: compareTeamsRaw, label: target === "today" ? "today" : target };
+      } else {
+        compareError = `Couldn't load comparison data for ${target === "today" ? "today" : target} — showing ${dateStr} without highlighting.`;
+      }
+    }
+
     document.getElementById("history-league").innerHTML =
-      '<h2 class="historySectionTitle">League Standings</h2>' + renderLeagueView(teams, null);
+      '<h2 class="historySectionTitle">League Standings</h2>' + renderLeagueView(teams, null, compare);
     document.getElementById("history-division").innerHTML =
-      '<h2 class="historySectionTitle">Division Standings</h2>' + renderDivisionView(teams, null);
-    setHistoryStatus("", false);
+      '<h2 class="historySectionTitle">Division Standings</h2>' + renderDivisionView(teams, null, compare);
+    setHistoryStatus(compareError, !!compareError);
   } catch (err) {
     console.error(err);
     setHistoryStatus(`Couldn't load the snapshot for ${dateStr}.`, true);
@@ -291,6 +384,18 @@ function initHistoryView() {
     .join("");
   select.value = SNAPSHOT_START_DATE;
   select.addEventListener("change", () => loadHistoryView(select.value));
+
+  const toggle = document.getElementById("history-compare-toggle");
+  const targetSel = document.getElementById("history-compare-target");
+  const legend = document.getElementById("history-compare-legend");
+  if (!toggle || !targetSel) return;
+  populateCompareOptions(select.value);
+  toggle.addEventListener("change", () => {
+    targetSel.disabled = !toggle.checked;
+    if (legend) legend.hidden = !toggle.checked;
+    loadHistoryView(select.value);
+  });
+  targetSel.addEventListener("change", () => loadHistoryView(select.value));
 }
 
 function isAheadOf(a, b) {
@@ -341,13 +446,17 @@ function buildDivisionOrder(divisionTeams) {
   return [...divisionTeams].sort((a, b) => a.divisionRank - b.divisionRank);
 }
 
-function renderMatrixCell(rowTeam, colTeam, prevTeams) {
+function renderMatrixCell(rowTeam, colTeam, prevTeams, compare) {
   if (rowTeam.id === colTeam.id) {
     return `<td class="diag"><img class="team-logo-diag" src="${logoUrl(rowTeam)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"></td>`;
   }
   if (isAheadOf(rowTeam, colTeam)) {
     const mn = magicNumber(rowTeam, colTeam);
     if (mn <= 0) return '<td class="magic-num">&ndash;</td>';
+    if (compare) {
+      const delta = magicNumberDelta(rowTeam, colTeam, compare.teams);
+      return diffTd("magic-num", mn, delta, compare.label, "Magic number");
+    }
     const delta = magicNumberDelta(rowTeam, colTeam, prevTeams);
     let cls = "magic-num";
     let badge = "";
@@ -395,6 +504,7 @@ function renderTable(rows, columns, opts) {
   head += "</tr>";
 
   const dividerAfter = opts.dividerAfter || {};
+  const compare = opts.compare;
   let body = "";
   rows.forEach((team, i) => {
     const cls = statusClass(team);
@@ -402,13 +512,24 @@ function renderTable(rows, columns, opts) {
     body += `<tr class="${[cls, divider].filter(Boolean).join(" ")}">`;
     body += teamCell(team, showFullName);
     body += `<td class="record-cell">${team.gamesPlayed}/${team.gamesRemaining}</td>`;
-    body += `<td class="record-cell">${team.wins}</td>`;
-    body += `<td class="record-cell">${team.losses}</td>`;
+
+    // Bigger is better for wins, smaller is better for losses — sign the
+    // deltas accordingly so diffShade's "positive = better" rule holds.
+    const otherRaw = compare && compare.teams[team.id];
+    const winsDelta = otherRaw && otherRaw.wins != null ? team.wins - otherRaw.wins : null;
+    const lossesDelta = otherRaw && otherRaw.losses != null ? otherRaw.losses - team.losses : null;
+    body += compare
+      ? diffTd("record-cell", team.wins, winsDelta, compare.label, "Wins")
+      : `<td class="record-cell">${team.wins}</td>`;
+    body += compare
+      ? diffTd("record-cell", team.losses, lossesDelta, compare.label, "Losses")
+      : `<td class="record-cell">${team.losses}</td>`;
+
     body += `<td class="record-cell">${team.pctDisplay}</td>`;
     body += `<td class="record-cell">${gbDisplay(opts.gbField === "league" ? team.leagueGamesBack : team.divisionGamesBack)}</td>`;
     if (showWcGb) body += `<td class="record-cell">${gbDisplay(team.wildCardGamesBack)}</td>`;
     columns.forEach((col) => {
-      body += renderMatrixCell(team, col, opts.prevTeams);
+      body += renderMatrixCell(team, col, opts.prevTeams, compare);
     });
     body += "</tr>";
   });
@@ -417,7 +538,7 @@ function renderTable(rows, columns, opts) {
   return `<div class="table-scroll"><table class="standings">${colgroup}<thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 
-function renderLeagueView(teams, prevTeams) {
+function renderLeagueView(teams, prevTeams, compare) {
   let html = "";
   LEAGUES.forEach((lg) => {
     const leagueTeams = teams.filter((t) => t.leagueId === lg.id);
@@ -432,13 +553,14 @@ function renderLeagueView(teams, prevTeams) {
       showFullName: false,
       dividerAfter: { 3: "lineTop3", 6: "lineTop6" },
       prevTeams,
+      compare,
     });
     html += "</div>";
   });
   return html;
 }
 
-function renderDivisionView(teams, prevTeams) {
+function renderDivisionView(teams, prevTeams, compare) {
   const divisions = {};
   teams.forEach((t) => {
     if (!divisions[t.divisionName]) divisions[t.divisionName] = [];
@@ -456,7 +578,7 @@ function renderDivisionView(teams, prevTeams) {
     const ordered = buildDivisionOrder(divisions[divName]);
     const headerCls = divisions[divName][0].leagueId === 103 ? " leagueBannerAL" : "";
     html += `<div class="division-block"><h3 class="${headerCls}">${divName}</h3>`;
-    html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division", prevTeams });
+    html += renderTable(ordered, ordered, { showWcGb: false, gbField: "division", prevTeams, compare });
     html += "</div>";
   });
   return html;
