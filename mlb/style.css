@@ -407,6 +407,12 @@ body {
   border-color: var(--color-primary);
 }
 
+.historyNote {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: -0.35rem 0 0.5rem;
+}
+
 .historySectionTitle {
   font-size: 0.95rem;
   font-weight: 700;
@@ -459,7 +465,7 @@ table.standings {
 
 table.standings th,
 table.standings td {
-  padding: 0.3rem 0.3rem;
+  padding: 0.3rem 0.25rem;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -563,15 +569,22 @@ td.magic-num.mn-down2 {
 
 .mn-arrow {
   display: inline-block;
-  margin-left: 2px;
-  font-size: 0.55rem;
+  margin-left: 1px;
+  font-size: 0.5rem;
   line-height: 1;
   vertical-align: middle;
   color: var(--color-amber-text);
 }
 .mn-arrow.mn-arrow-double {
   color: var(--color-red-text);
-  letter-spacing: -2px;
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 0.5;
+  font-size: 0.7rem;
+  -webkit-text-stroke: 0.5px currentColor;
+}
+.mn-arrow.mn-arrow-double i:last-child {
+  margin-top: -4px;
 }
 
 /* Playoff-cutoff dividers in the League Standings table:

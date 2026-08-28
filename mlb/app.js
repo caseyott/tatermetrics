@@ -356,7 +356,7 @@ function renderMatrixCell(rowTeam, colTeam, prevTeams) {
       badge = '<span class="mn-arrow" title="down 1 since this morning\'s snapshot">&#9660;</span>';
     } else if (delta !== null && delta >= 2) {
       cls += " mn-down2";
-      badge = `<span class="mn-arrow mn-arrow-double" title="down ${delta} since this morning's snapshot (doubleheader?)">&#9660;&#9660;</span>`;
+      badge = `<span class="mn-arrow mn-arrow-double" title="down ${delta} since this morning's snapshot (doubleheader?)"><i class="ti ti-chevron-down" aria-hidden="true"></i><i class="ti ti-chevron-down" aria-hidden="true"></i></span>`;
     }
     return `<td class="${cls}">${mn}${badge}</td>`;
   }
@@ -372,8 +372,8 @@ function teamCell(team, showFullName) {
  *  scrolling): the team column and each stat column get a fixed share, and whatever's
  *  left is split evenly across the per-opponent logo columns. */
 function buildColgroup(numLogoCols, numStatCols) {
-  const teamPct = 15;
-  const statPct = 6;
+  const teamPct = 13;
+  const statPct = 5;
   const statsTotal = statPct * numStatCols;
   const logoPct = (100 - teamPct - statsTotal) / numLogoCols;
   let cols = `<col style="width:${teamPct}%">`;
