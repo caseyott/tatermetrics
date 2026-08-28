@@ -545,6 +545,26 @@ table.standings th.team-cell {
   left: 0;
   background: var(--color-surface);
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Pin the W/L result badge to the right edge of the column, regardless of
+   how long the team name/abbreviation to its left is, so badges line up
+   down the column instead of drifting with name length. */
+table.standings td.team-cell {
+  justify-content: space-between;
+}
+
+.team-cell-main {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 table.standings thead th.team-cell {
@@ -677,12 +697,13 @@ tr.eliminated td.record-cell {
 .status-tag.wc { background: var(--color-amber-text); color: #fff; }
 .status-tag.elim { background: var(--color-red-text); color: #fff; }
 
-/* Same-day result badge (W/L) in the team column. */
+/* Same-day result badge (W/L) in the team column. Pinned to the right edge
+   of td.team-cell (see .team-cell-main) so it lines up down the column. */
 .result-badge {
   display: inline-block;
+  flex-shrink: 0;
   font-size: 0.62rem;
   font-weight: 700;
-  margin-left: 6px;
   padding: 0.1rem 0.4rem;
   border-radius: 20px;
   vertical-align: middle;

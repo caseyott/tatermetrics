@@ -482,7 +482,10 @@ function resultBadge(team, resultsMap) {
 
 function teamCell(team, showFullName, resultsMap) {
   const nameSpan = showFullName ? `<span class="team-name">${team.shortName}</span>` : "";
-  return `<td class="team-cell" title="${team.name}"><img class="team-logo" src="${logoUrl(team)}" alt="" loading="lazy" onerror="this.style.display='none'">${team.abbr}${statusTag(team)}${resultBadge(team, resultsMap)}${nameSpan}</td>`;
+  // The result badge sits outside .team-cell-main so it pins to the right
+  // edge of the column (via flex space-between) instead of drifting based
+  // on how long the name to its left happens to be.
+  return `<td class="team-cell" title="${team.name}"><span class="team-cell-main"><img class="team-logo" src="${logoUrl(team)}" alt="" loading="lazy" onerror="this.style.display='none'">${team.abbr}${statusTag(team)}${nameSpan}</span>${resultBadge(team, resultsMap)}</td>`;
 }
 
 /** Build a <colgroup> so the table is forced to fit the container width (no horizontal
