@@ -23,6 +23,14 @@
 <header class="header">
   <div class="headerInner">
     <div class="left">
+      <a class="brandBtn" href="../" aria-label="TaterMetrics home">
+        <i class="ti ti-chart-bar brandIcon" aria-hidden="true"></i>
+        <div class="titleBlock">
+          <span class="brandName">TaterMetrics</span>
+          <span class="subtitle">Live sports stats &amp; tools</span>
+        </div>
+      </a>
+      <span class="headerDivider" aria-hidden="true"></span>
       <i class="ti ti-trophy titleIcon" aria-hidden="true"></i>
       <div class="titleBlock">
         <span class="title">MLB Magic Numbers</span>
@@ -52,6 +60,13 @@
   <button class="tabPill" data-view="history">By Date</button>
 </nav>
 
+<div class="gridModeRow">
+  <label class="gridModeLabel" for="tragic-toggle">
+    <input type="checkbox" id="tragic-toggle">
+    Show tragic numbers
+  </label>
+</div>
+
 <main id="app" class="main">
   <div id="status" class="status">Loading live standings&hellip;</div>
   <div id="league-view" class="view"></div>
@@ -64,14 +79,14 @@
     </div>
     <div class="historyCompareRow">
       <label class="historyCompareLabel" for="history-compare-toggle">
-        <input type="checkbox" id="history-compare-toggle">
+        <input type="checkbox" id="history-compare-toggle" checked>
         Compare to
       </label>
-      <select id="history-compare-target" disabled>
+      <select id="history-compare-target">
         <option value="today">Today (live)</option>
       </select>
     </div>
-    <p class="historyCompareLegend" id="history-compare-legend" hidden>Shaded cells changed vs. the comparison &mdash; darker shade means a bigger difference. Green means better than the comparison, red means worse.</p>
+    <p class="historyCompareLegend" id="history-compare-legend">Shaded cells changed vs. the comparison &mdash; darker shade means a bigger difference. Green means better than the comparison, red means worse.</p>
     <p class="historyNote">* Standings as of 5:15 ET, before that day's games started.</p>
     <div id="history-status" class="status"></div>
     <div id="history-league"></div>
@@ -87,6 +102,8 @@
       <li><span class="pill pillRed">Eliminated from the playoffs</span></li>
     </ul>
     <p class="legendNote">A number in the grid is the <strong>magic number</strong>: the combined number of wins (by the row team) and losses (by the column team) needed for the row team to guarantee finishing ahead of the column team. &ldquo;NC&rdquo; (not clinched) means the column team currently has the better record, so no magic number applies in that direction yet.</p>
+    <p class="legendText">If the row team has already clinched the season series against the column team (all of their head-to-head games played, and the row team won more of them), its magic number is one lower than usual &mdash; a tie in the standings would go to the row team, so it only needs to force a tie rather than finish outright ahead.</p>
+    <p class="legendNote" id="legend-tragic-note" hidden>Flip on <strong>tragic numbers</strong> above and the grid instead shows each row team&rsquo;s <strong>elimination number</strong> (E#) against the column team &mdash; the same head-to-head math, just read from the trailing team&rsquo;s side: the combined losses (by the row team) or wins (by the column team) that would mathematically eliminate the row team from finishing ahead of the column team. &ldquo;NE&rdquo; (not eliminated) means the row team currently has the better record, so no elimination number applies yet; &ldquo;E&rdquo; means that number has already reached zero.</p>
     <p class="legendText">Cells are flagged when a magic number has dropped since this morning's snapshot:</p>
     <ul class="legend-list">
       <li><span class="pill pillAmber">&#9660; down 1</span></li>
@@ -95,10 +112,27 @@
   </section>
 </main>
 
+<div id="team-modal" class="modalOverlay" hidden>
+  <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
+    <button id="team-modal-close" class="modalCloseBtn" aria-label="Close"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <div class="modalHeader">
+      <img id="team-modal-logo" class="modalLogo" src="" alt="" loading="lazy">
+      <div class="modalHeaderText">
+        <h2 id="team-modal-title" class="modalTeamName"></h2>
+        <p id="team-modal-record" class="modalTeamRecord"></p>
+      </div>
+    </div>
+    <div id="team-modal-body" class="modalScenarios"></div>
+    <p class="modalFootnote">Division clinch/elimination come straight from MLB. Seed and individual wild-card-slot numbers are TaterMetrics estimates based on today&rsquo;s division and wild-card leaders, and can shift as those races develop.</p>
+  </div>
+</div>
+
 <footer class="footer">
   <span id="last-updated"></span>
   <span class="sep">&middot;</span>
   <span class="disclaimer">Unofficial fan project &mdash; data from the MLB Stats API, not affiliated with MLB or Playoff Magic</span>
+  <span class="sep">&middot;</span>
+  <span>Part of the <a class="footerLink" href="https://tatertech.net" target="_blank" rel="noopener noreferrer">TaterTech</a> network</span>
 </footer>
 
 <script src="app.js"></script>

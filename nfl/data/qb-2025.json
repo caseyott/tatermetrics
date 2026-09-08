@@ -1,0 +1,574 @@
+{
+  "season": 2025,
+  "salaryYear": 2026,
+  "generatedAt": "2026-08-28T15:46:07.951Z",
+  "minGames": 8,
+  "minAttempts": 224,
+  "qbs": [
+    {
+      "name": "Aaron Rodgers",
+      "team": "PIT",
+      "stats": {
+        "games": 16,
+        "completions": 327,
+        "attempts": 498,
+        "passingYards": 3322,
+        "passingTds": 24,
+        "interceptions": 7,
+        "sacks": 29,
+        "rushingYards": 61,
+        "rushingTds": 1
+      },
+      "salary": {
+        "contractTeam": "Packers",
+        "yearSigned": 2022,
+        "contractYears": 5,
+        "totalValue": 150815000,
+        "apy": 50271667,
+        "guaranteed": 150665000,
+        "apyCapPctAtSigning": 0.24100000000000002
+      }
+    },
+    {
+      "name": "Patrick Mahomes",
+      "team": "KC",
+      "stats": {
+        "games": 14,
+        "completions": 315,
+        "attempts": 502,
+        "passingYards": 3587,
+        "passingTds": 22,
+        "interceptions": 11,
+        "sacks": 34,
+        "rushingYards": 422,
+        "rushingTds": 5
+      },
+      "salary": {
+        "contractTeam": "Chiefs",
+        "yearSigned": 2020,
+        "contractYears": 10,
+        "totalValue": 450000000,
+        "apy": 45000000,
+        "guaranteed": 141000000,
+        "apyCapPctAtSigning": 0.22699999999999998
+      }
+    },
+    {
+      "name": "Josh Allen",
+      "team": "BUF",
+      "stats": {
+        "games": 16,
+        "completions": 319,
+        "attempts": 460,
+        "passingYards": 3668,
+        "passingTds": 25,
+        "interceptions": 10,
+        "sacks": 40,
+        "rushingYards": 579,
+        "rushingTds": 14
+      },
+      "salary": {
+        "contractTeam": "Bills",
+        "yearSigned": 2021,
+        "contractYears": 6,
+        "totalValue": 258000000,
+        "apy": 43000000,
+        "guaranteed": 150000000,
+        "apyCapPctAtSigning": 0.23600000000000002
+      }
+    },
+    {
+      "name": "Matthew Stafford",
+      "team": "LA",
+      "stats": {
+        "games": 17,
+        "completions": 388,
+        "attempts": 597,
+        "passingYards": 4707,
+        "passingTds": 46,
+        "interceptions": 8,
+        "sacks": 23,
+        "rushingYards": 1,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "Rams",
+        "yearSigned": 2022,
+        "contractYears": 4,
+        "totalValue": 160000000,
+        "apy": 40000000,
+        "guaranteed": 120000000,
+        "apyCapPctAtSigning": 0.192
+      }
+    },
+    {
+      "name": "Dak Prescott",
+      "team": "DAL",
+      "stats": {
+        "games": 17,
+        "completions": 404,
+        "attempts": 600,
+        "passingYards": 4552,
+        "passingTds": 30,
+        "interceptions": 10,
+        "sacks": 31,
+        "rushingYards": 177,
+        "rushingTds": 2
+      },
+      "salary": {
+        "contractTeam": "Cowboys",
+        "yearSigned": 2021,
+        "contractYears": 4,
+        "totalValue": 160000000,
+        "apy": 40000000,
+        "guaranteed": 126000000,
+        "apyCapPctAtSigning": 0.21899999999999997
+      }
+    },
+    {
+      "name": "Kirk Cousins",
+      "team": "ATL",
+      "stats": {
+        "games": 10,
+        "completions": 166,
+        "attempts": 269,
+        "passingYards": 1721,
+        "passingTds": 10,
+        "interceptions": 5,
+        "sacks": 13,
+        "rushingYards": 7,
+        "rushingTds": 1
+      },
+      "salary": {
+        "contractTeam": "Vikings",
+        "yearSigned": 2022,
+        "contractYears": 1,
+        "totalValue": 35000000,
+        "apy": 35000000,
+        "guaranteed": 35000000,
+        "apyCapPctAtSigning": 0.168
+      }
+    },
+    {
+      "name": "Jared Goff",
+      "team": "DET",
+      "stats": {
+        "games": 17,
+        "completions": 393,
+        "attempts": 578,
+        "passingYards": 4564,
+        "passingTds": 34,
+        "interceptions": 8,
+        "sacks": 38,
+        "rushingYards": 45,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "LAR/DET",
+        "yearSigned": 2019,
+        "contractYears": 4,
+        "totalValue": 134000000,
+        "apy": 33500000,
+        "guaranteed": 110042682,
+        "apyCapPctAtSigning": 0.17800000000000002
+      }
+    },
+    {
+      "name": "Marcus Mariota",
+      "team": "WAS",
+      "stats": {
+        "games": 10,
+        "completions": 139,
+        "attempts": 227,
+        "passingYards": 1695,
+        "passingTds": 10,
+        "interceptions": 7,
+        "sacks": 16,
+        "rushingYards": 297,
+        "rushingTds": 1
+      },
+      "salary": {
+        "contractTeam": "Falcons",
+        "yearSigned": 2022,
+        "contractYears": 2,
+        "totalValue": 18750000,
+        "apy": 9375000,
+        "guaranteed": 6750000,
+        "apyCapPctAtSigning": 0.045
+      }
+    },
+    {
+      "name": "Trevor Lawrence",
+      "team": "JAX",
+      "stats": {
+        "games": 17,
+        "completions": 341,
+        "attempts": 560,
+        "passingYards": 4007,
+        "passingTds": 29,
+        "interceptions": 12,
+        "sacks": 41,
+        "rushingYards": 359,
+        "rushingTds": 9
+      },
+      "salary": {
+        "contractTeam": "Jaguars",
+        "yearSigned": 2021,
+        "contractYears": 4,
+        "totalValue": 36793486,
+        "apy": 9198372,
+        "guaranteed": 36783486,
+        "apyCapPctAtSigning": 0.05
+      }
+    },
+    {
+      "name": "Joe Burrow",
+      "team": "CIN",
+      "stats": {
+        "games": 8,
+        "completions": 173,
+        "attempts": 259,
+        "passingYards": 1809,
+        "passingTds": 17,
+        "interceptions": 5,
+        "sacks": 17,
+        "rushingYards": 41,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "Bengals",
+        "yearSigned": 2020,
+        "contractYears": 4,
+        "totalValue": 36190136,
+        "apy": 9047534,
+        "guaranteed": 36190136,
+        "apyCapPctAtSigning": 0.046
+      }
+    },
+    {
+      "name": "Baker Mayfield",
+      "team": "TB",
+      "stats": {
+        "games": 17,
+        "completions": 343,
+        "attempts": 543,
+        "passingYards": 3693,
+        "passingTds": 26,
+        "interceptions": 11,
+        "sacks": 36,
+        "rushingYards": 382,
+        "rushingTds": 1
+      },
+      "salary": {
+        "contractTeam": "Browns",
+        "yearSigned": 2018,
+        "contractYears": 4,
+        "totalValue": 32682980,
+        "apy": 8170745,
+        "guaranteed": 32682980,
+        "apyCapPctAtSigning": 0.046
+      }
+    },
+    {
+      "name": "Tua Tagovailoa",
+      "team": "MIA",
+      "stats": {
+        "games": 14,
+        "completions": 260,
+        "attempts": 384,
+        "passingYards": 2660,
+        "passingTds": 20,
+        "interceptions": 15,
+        "sacks": 30,
+        "rushingYards": 43,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "Dolphins",
+        "yearSigned": 2020,
+        "contractYears": 4,
+        "totalValue": 30275436,
+        "apy": 7568859,
+        "guaranteed": 30275436,
+        "apyCapPctAtSigning": 0.038
+      }
+    },
+    {
+      "name": "Sam Darnold",
+      "team": "SEA",
+      "stats": {
+        "games": 17,
+        "completions": 323,
+        "attempts": 477,
+        "passingYards": 4048,
+        "passingTds": 25,
+        "interceptions": 14,
+        "sacks": 27,
+        "rushingYards": 95,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "NYJ/CAR",
+        "yearSigned": 2018,
+        "contractYears": 4,
+        "totalValue": 30247694,
+        "apy": 7561924,
+        "guaranteed": 30247694,
+        "apyCapPctAtSigning": 0.043
+      }
+    },
+    {
+      "name": "Justin Herbert",
+      "team": "LAC",
+      "stats": {
+        "games": 16,
+        "completions": 340,
+        "attempts": 512,
+        "passingYards": 3727,
+        "passingTds": 26,
+        "interceptions": 13,
+        "sacks": 54,
+        "rushingYards": 498,
+        "rushingTds": 2
+      },
+      "salary": {
+        "contractTeam": "Chargers",
+        "yearSigned": 2020,
+        "contractYears": 4,
+        "totalValue": 26578754,
+        "apy": 6644689,
+        "guaranteed": 26578754,
+        "apyCapPctAtSigning": 0.034
+      }
+    },
+    {
+      "name": "Daniel Jones",
+      "team": "IND",
+      "stats": {
+        "games": 13,
+        "completions": 261,
+        "attempts": 384,
+        "passingYards": 3101,
+        "passingTds": 19,
+        "interceptions": 8,
+        "sacks": 22,
+        "rushingYards": 164,
+        "rushingTds": 5
+      },
+      "salary": {
+        "contractTeam": "Giants",
+        "yearSigned": 2019,
+        "contractYears": 4,
+        "totalValue": 25664056,
+        "apy": 6416014,
+        "guaranteed": 25664056,
+        "apyCapPctAtSigning": 0.034
+      }
+    },
+    {
+      "name": "Jacoby Brissett",
+      "team": "ARI",
+      "stats": {
+        "games": 14,
+        "completions": 315,
+        "attempts": 485,
+        "passingYards": 3366,
+        "passingTds": 23,
+        "interceptions": 8,
+        "sacks": 43,
+        "rushingYards": 168,
+        "rushingTds": 1
+      },
+      "salary": {
+        "contractTeam": "Browns",
+        "yearSigned": 2022,
+        "contractYears": 1,
+        "totalValue": 4650000,
+        "apy": 4650000,
+        "guaranteed": 4500000,
+        "apyCapPctAtSigning": 0.022000000000000002
+      }
+    },
+    {
+      "name": "Mac Jones",
+      "team": "SF",
+      "stats": {
+        "games": 11,
+        "completions": 201,
+        "attempts": 289,
+        "passingYards": 2151,
+        "passingTds": 13,
+        "interceptions": 6,
+        "sacks": 16,
+        "rushingYards": 60,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "Patriots",
+        "yearSigned": 2021,
+        "contractYears": 4,
+        "totalValue": 15586340,
+        "apy": 3896585,
+        "guaranteed": 15586340,
+        "apyCapPctAtSigning": 0.021
+      }
+    },
+    {
+      "name": "Joe Flacco",
+      "team": "CIN",
+      "stats": {
+        "games": 13,
+        "completions": 251,
+        "attempts": 416,
+        "passingYards": 2479,
+        "passingTds": 15,
+        "interceptions": 10,
+        "sacks": 18,
+        "rushingYards": 35,
+        "rushingTds": 1
+      },
+      "salary": {
+        "contractTeam": "Jets",
+        "yearSigned": 2022,
+        "contractYears": 1,
+        "totalValue": 3500000,
+        "apy": 3500000,
+        "guaranteed": 2850000,
+        "apyCapPctAtSigning": 0.017
+      }
+    },
+    {
+      "name": "Geno Smith",
+      "team": "LV",
+      "stats": {
+        "games": 15,
+        "completions": 302,
+        "attempts": 448,
+        "passingYards": 3025,
+        "passingTds": 19,
+        "interceptions": 17,
+        "sacks": 55,
+        "rushingYards": 109,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "Seahawks",
+        "yearSigned": 2022,
+        "contractYears": 1,
+        "totalValue": 3500000,
+        "apy": 3500000,
+        "guaranteed": 500000,
+        "apyCapPctAtSigning": 0.017
+      }
+    },
+    {
+      "name": "Jordan Love",
+      "team": "GB",
+      "stats": {
+        "games": 15,
+        "completions": 291,
+        "attempts": 439,
+        "passingYards": 3381,
+        "passingTds": 23,
+        "interceptions": 6,
+        "sacks": 21,
+        "rushingYards": 199,
+        "rushingTds": 0
+      },
+      "salary": {
+        "contractTeam": "Packers",
+        "yearSigned": 2020,
+        "contractYears": 4,
+        "totalValue": 12383470,
+        "apy": 3095868,
+        "guaranteed": 12383470,
+        "apyCapPctAtSigning": 0.016
+      }
+    },
+    {
+      "name": "Lamar Jackson",
+      "team": "BAL",
+      "stats": {
+        "games": 13,
+        "completions": 192,
+        "attempts": 302,
+        "passingYards": 2549,
+        "passingTds": 21,
+        "interceptions": 7,
+        "sacks": 36,
+        "rushingYards": 349,
+        "rushingTds": 2
+      },
+      "salary": {
+        "contractTeam": "Ravens",
+        "yearSigned": 2018,
+        "contractYears": 4,
+        "totalValue": 9471652,
+        "apy": 2367913,
+        "guaranteed": 8055062,
+        "apyCapPctAtSigning": 0.013000000000000001
+      }
+    },
+    {
+      "name": "Jalen Hurts",
+      "team": "PHI",
+      "stats": {
+        "games": 16,
+        "completions": 294,
+        "attempts": 454,
+        "passingYards": 3224,
+        "passingTds": 25,
+        "interceptions": 6,
+        "sacks": 32,
+        "rushingYards": 421,
+        "rushingTds": 8
+      },
+      "salary": {
+        "contractTeam": "Eagles",
+        "yearSigned": 2020,
+        "contractYears": 4,
+        "totalValue": 6025176,
+        "apy": 1506294,
+        "guaranteed": 3435816,
+        "apyCapPctAtSigning": 0.008
+      }
+    },
+    {
+      "name": "Brock Purdy",
+      "team": "SF",
+      "stats": {
+        "games": 9,
+        "completions": 197,
+        "attempts": 284,
+        "passingYards": 2167,
+        "passingTds": 20,
+        "interceptions": 10,
+        "sacks": 11,
+        "rushingYards": 147,
+        "rushingTds": 3
+      },
+      "salary": {
+        "contractTeam": "49ers",
+        "yearSigned": 2022,
+        "contractYears": 4,
+        "totalValue": 3737012,
+        "apy": 934253,
+        "guaranteed": 77012,
+        "apyCapPctAtSigning": 0.004
+      }
+    }
+  ],
+  "unmatched": [
+    "Bryce Young",
+    "C.J. Stroud",
+    "Spencer Rattler",
+    "Bo Nix",
+    "Drake Maye",
+    "Michael Penix Jr.",
+    "Caleb Williams",
+    "J.J. McCarthy",
+    "Cam Ward",
+    "Jaxson Dart",
+    "Tyler Shough"
+  ]
+}

@@ -1,0 +1,512 @@
+/* =========================================================
+   Design tokens — matches curling.tatertech.net / mlb.tatertech.net
+   ========================================================= */
+:root {
+  /* Brand */
+  --color-primary: #1e5fa8;
+  --color-primary-dark: #154480;
+  --color-primary-light: #dbeafe;
+
+  /* Surfaces */
+  --color-bg: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-header-bg: #1a2e4a;
+  --color-banner-bg: #2e4a7a;
+  --color-banner-text: #b5d4f4;
+
+  /* Text */
+  --color-text: #1f2937;
+  --color-heading: #111827;
+  --color-muted: #6b7280;
+
+  /* Form / border */
+  --color-border: #d1d5db;
+  --color-input-bg: #ffffff;
+
+  /* Table */
+  --color-table-head-bg: #f9fafb;
+  --color-table-row-hover: #f0f4ff;
+
+  /* Status */
+  --color-error: #dc2626;
+  --color-green-bg: #dcfce7;
+  --color-green-text: #166534;
+  --color-amber-bg: #fef3c7;
+  --color-amber-text: #92400e;
+  --color-red-bg: #fee2e2;
+  --color-red-text: #991b1b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Roboto Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a, button {
+  touch-action: manipulation;
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+.header {
+  background: var(--color-header-bg);
+  color: #fff;
+}
+
+.headerInner {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.brandBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  margin-left: -0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+
+.brandBtn:link, .brandBtn:visited, .brandBtn:hover, .brandBtn:active {
+  color: #fff;
+  text-decoration: none;
+}
+
+.brandBtn:hover, .brandBtn:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.brandIcon {
+  font-size: 1.5rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.headerDivider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.titleIcon {
+  font-size: 1.6rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   Main / intro
+   ========================================================= */
+.main {
+  max-width: 1150px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2.5rem;
+  flex: 1;
+}
+
+.introCard {
+  margin-bottom: 1.25rem;
+}
+
+.introTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 0.4rem;
+}
+
+.introText {
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  max-width: 760px;
+}
+
+.introText + .introText {
+  margin-top: 0.5rem;
+}
+
+/* =========================================================
+   Status banner (data pipeline progress)
+   ========================================================= */
+.statusBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--color-amber-bg);
+  color: var(--color-amber-text);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.statusBanner.complete {
+  background: var(--color-green-bg);
+  color: var(--color-green-text);
+}
+
+.statusBanner i {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.statusBanner .statusDetail {
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* =========================================================
+   Controls
+   ========================================================= */
+.controlsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.tabPillGroup {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tabPill {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.tabPill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.tabPill.active {
+  background: var(--color-banner-bg);
+  border-color: var(--color-banner-bg);
+  color: #fff;
+}
+
+.controlSpacer { flex: 1 1 auto; }
+
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.controlGroup label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.controlGroup select {
+  font-family: inherit;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.controlGroup select:hover { border-color: var(--color-primary); }
+
+.baselineToggle {
+  display: inline-flex;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.baselineToggle button {
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.baselineToggle button.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* =========================================================
+   Table
+   ========================================================= */
+.tableCard {
+  background: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.table-scroll { overflow-x: auto; }
+
+table.qbTable {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+table.qbTable th,
+table.qbTable td {
+  padding: 0.5rem 0.65rem;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-border);
+}
+
+table.qbTable thead th {
+  background: var(--color-table-head-bg);
+  color: var(--color-muted);
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--color-border);
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+}
+
+table.qbTable thead th:hover { color: var(--color-primary); }
+
+table.qbTable thead th.sorted { color: var(--color-primary); }
+
+table.qbTable thead th .sortArrow {
+  font-size: 0.6rem;
+  margin-left: 0.2rem;
+  opacity: 0.5;
+}
+
+table.qbTable thead th.sorted .sortArrow { opacity: 1; }
+
+table.qbTable tbody tr:hover { background: var(--color-table-row-hover); }
+
+table.qbTable td.rankCell,
+table.qbTable th.rankCell {
+  text-align: center;
+  color: var(--color-muted);
+  font-weight: 700;
+  width: 2.5rem;
+}
+
+table.qbTable td.nameCell,
+table.qbTable th.nameCell {
+  text-align: left;
+  font-weight: 700;
+  color: var(--color-heading);
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+}
+
+table.qbTable tbody tr:hover td.nameCell { background: var(--color-table-row-hover); }
+
+table.qbTable .teamTag {
+  font-weight: 600;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  margin-left: 0.3rem;
+}
+
+.placeholderCap {
+  color: var(--color-amber-text);
+  border-bottom: 1px dashed var(--color-amber-text);
+  cursor: help;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.pillRed { background: var(--color-red-bg); color: var(--color-red-text); }
+.pillGreen { background: var(--color-green-bg); color: var(--color-green-text); }
+.pillAmber { background: var(--color-amber-bg); color: var(--color-amber-text); }
+
+/* =========================================================
+   Footnotes / methodology / excluded list
+   ========================================================= */
+.footnoteCard {
+  background: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.footnoteCard h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+}
+
+.footnoteCard p { margin-bottom: 0.5rem; }
+.footnoteCard p:last-child { margin-bottom: 0; }
+
+.footnoteCard details { margin-top: 0.6rem; }
+.footnoteCard summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.footnoteCard .excludedList {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.footnoteCard .excludedTag {
+  background: var(--color-table-head-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.status {
+  padding: 0.75rem 0.25rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.status.error { color: var(--color-error); font-weight: 600; }
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.footerLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footerLink:hover { text-decoration: underline; }
+
+.sep { color: var(--color-border); }
+
+@media (max-width: 640px) {
+  .title { font-size: 0.95rem; }
+  .subtitle { display: none; }
+  .brandName { display: none; }
+  .main { padding: 1.25rem 0.85rem 2rem; }
+  table.qbTable { font-size: 0.78rem; }
+  table.qbTable th, table.qbTable td { padding: 0.4rem 0.45rem; }
+}

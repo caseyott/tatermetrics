@@ -12,35 +12,100 @@
 
   gtag('config', 'G-MX226GG0JH');
 </script>
-<title>NFL | TaterMetrics</title>
+<title>QB Salary vs. Stats | NFL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="header">
   <div class="headerInner">
     <div class="left">
+      <a class="brandBtn" href="../" aria-label="TaterMetrics home">
+        <i class="ti ti-chart-bar brandIcon" aria-hidden="true"></i>
+        <div class="titleBlock">
+          <span class="brandName">TaterMetrics</span>
+          <span class="subtitle">Live sports stats &amp; tools</span>
+        </div>
+      </a>
+      <span class="headerDivider" aria-hidden="true"></span>
       <i class="ti ti-ball-american-football titleIcon" aria-hidden="true"></i>
       <div class="titleBlock">
-        <span class="title">NFL</span>
-        <span class="subtitle">TaterMetrics</span>
+        <span class="title">QB Salary vs. Stats</span>
+        <span class="subtitle">nflverse &middot; Spotrac</span>
       </div>
     </div>
   </div>
 </header>
 
-<main class="stubMain">
-  <i class="ti ti-tools stubIcon" aria-hidden="true"></i>
-  <h1 class="stubTitle">Coming soon</h1>
-  <p class="stubText">NFL playoff &amp; division scenarios aren&rsquo;t built yet. Check back later.</p>
-  <a class="backLink" href="../"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to TaterMetrics</a>
+<main id="app" class="main">
+  <div class="introCard">
+    <h1 class="introTitle">Is your quarterback overpaid?</h1>
+    <p class="introText">Every starter-level QB's <strong id="stats-season-label">season</strong> stats, lined up against what they were actually paid that year (real cap hit, not a rumored number), then ranked by whether their production matches their price tag &mdash; compared to the field's mean and median.</p>
+    <p class="introText">"Starter-level" means at least <span id="min-games-label">8</span> games played and <span id="min-attempts-label">224</span> pass attempts that season &mdash; enough to filter out backups and spot starts while still catching every real starting job, including a midseason change.</p>
+  </div>
+
+  <div id="status-banner" class="statusBanner" hidden>
+    <i class="ti ti-loader-2" aria-hidden="true"></i>
+    <span id="status-banner-text"></span>
+  </div>
+
+  <div id="load-error" class="status error" hidden></div>
+
+  <div id="table-section" hidden>
+    <div class="controlsBar">
+      <div class="tabPillGroup" id="view-tabs">
+        <button class="tabPill active" data-view="value">Value Score</button>
+        <button class="tabPill" data-view="stat">By Stat</button>
+        <button class="tabPill" data-view="raw">All Stats</button>
+      </div>
+      <div class="controlSpacer"></div>
+      <div class="controlGroup" id="stat-picker-group" hidden>
+        <label for="stat-picker">Stat</label>
+        <select id="stat-picker"></select>
+      </div>
+      <div class="controlGroup">
+        <label>Compare to</label>
+        <div class="baselineToggle" id="baseline-toggle">
+          <button data-baseline="mean" class="active">Mean</button>
+          <button data-baseline="median">Median</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tableCard">
+      <div class="table-scroll">
+        <table class="qbTable" id="qb-table">
+          <thead id="qb-table-head"></thead>
+          <tbody id="qb-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <section class="footnoteCard">
+    <h2>Methodology</h2>
+    <p><strong>Salary</strong> is the player's real cap hit for the stats season, pulled from Spotrac one QB at a time &mdash; not average-per-year or a rumored figure, so a one-year "prove it" deal and a back-loaded mega-extension aren't compared apples-to-oranges. That lookup is rate-limited, so not every QB has a confirmed real figure yet: a <strong>&asymp;</strong> marker means Spotrac didn't have a cap-hit breakdown for that season (usually a since-superseded contract) so this is cash actually paid that year instead; a <strong>~</strong> marker is an average-per-year estimate from a separate, free dataset that can lag recent deals; a <strong>?</strong> marker means no real salary data exists anywhere yet and the figure shown is a generic placeholder. Hover any marked figure for specifics.</p>
+    <p><strong>Value Score</strong> compares each QB's pay to the field's mean (or median) salary, and their production on seven core stats &mdash; completion %, passing yards, total TDs (passing + rushing), interceptions, passer rating, TD:INT ratio, and sacks taken &mdash; to the field's mean (or median) on each. A positive score means they're paid further above the baseline than their stats are; negative means the opposite. It's a "value for money" signal, not a talent grade.</p>
+    <p><strong>By Stat</strong> isolates one stat at a time &mdash; e.g. "the #1 highest-paid QB throws the 2nd-fewest TDs, so by touchdowns alone he's overpaid by X" &mdash; exactly that kind of single-stat comparison, ranked across the whole field.</p>
+    <p id="generated-at-note"></p>
+    <details id="excluded-details" hidden>
+      <summary>QBs still showing a placeholder salary</summary>
+      <div class="excludedList" id="excluded-list"></div>
+    </details>
+  </section>
 </main>
 
 <footer class="footer">
-  <span class="disclaimer">Unofficial fan project &mdash; not affiliated with any league or team</span>
+  <span id="last-updated"></span>
+  <span class="sep">&middot;</span>
+  <span class="disclaimer">Unofficial fan project &mdash; stats from nflverse, salary from Spotrac via a managed API &mdash; not affiliated with the NFL, nflverse, or Spotrac</span>
+  <span class="sep">&middot;</span>
+  <span>Part of the <a class="footerLink" href="https://tatertech.net" target="_blank" rel="noopener noreferrer">TaterTech</a> network</span>
 </footer>
+
+<script src="app.js"></script>
 </body>
 </html>

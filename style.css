@@ -76,6 +76,55 @@ body {
   min-width: 0;
 }
 
+.brandBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  margin-left: -0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+
+.brandBtn:link,
+.brandBtn:visited,
+.brandBtn:hover,
+.brandBtn:active {
+  color: #fff;
+  text-decoration: none;
+}
+
+.brandBtn:hover,
+.brandBtn:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.brandIcon {
+  font-size: 1.5rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.headerDivider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
 .titleIcon {
   font-size: 1.6rem;
   color: #fbbf24;
@@ -282,6 +331,16 @@ body {
   text-align: center;
 }
 
+.footerLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
 a, button {
   touch-action: manipulation;
 }
@@ -289,6 +348,7 @@ a, button {
 @media (max-width: 640px) {
   .title { font-size: 0.95rem; }
   .subtitle { display: none; }
+  .brandName { display: none; }
   .main { padding: 1.25rem 0.85rem 2rem; }
   .cardGrid { grid-template-columns: 1fr; gap: 0.75rem; }
   .appCard { padding: 0.9rem 1rem; }

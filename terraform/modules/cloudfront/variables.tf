@@ -4,8 +4,14 @@ variable "app_name" {
 }
 
 variable "domain_name" {
-  description = "Custom domain name for the CloudFront distribution."
+  description = "Primary custom domain name for the CloudFront distribution."
   type        = string
+}
+
+variable "extra_aliases" {
+  description = "Additional CloudFront aliases beyond domain_name (e.g. an apex domain and its www subdomain). Must all be covered by acm_certificate_arn."
+  type        = list(string)
+  default     = []
 }
 
 variable "bucket_id" {

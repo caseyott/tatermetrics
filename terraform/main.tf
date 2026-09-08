@@ -21,6 +21,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "~> 2.4"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5"
+    }
   }
 
   backend "s3" {
@@ -43,6 +47,12 @@ provider "aws" {
   }
 }
 
+# Reads CLOUDFLARE_API_TOKEN from the environment if var.cloudflare_api_token
+# isn't set (see cloudflare_dns.tf).
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
+
 ################################################################################
 # Modules
 ################################################################################
@@ -56,10 +66,11 @@ module "cloudfront" {
   source              = "./modules/cloudfront"
   app_name            = var.app_name
   domain_name         = var.domain_name
+  extra_aliases       = [var.custom_domain_name, "www.${var.custom_domain_name}"]
   bucket_id           = module.s3.bucket_id
   bucket_arn          = module.s3.bucket_arn
   bucket_domain_name  = module.s3.bucket_regional_domain_name
-  acm_certificate_arn = var.acm_certificate_arn
+  acm_certificate_arn = aws_acm_certificate_validation.site.certificate_arn
 }
 
 module "route53" {

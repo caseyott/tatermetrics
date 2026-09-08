@@ -42,7 +42,7 @@ resource "aws_cloudfront_distribution" "site" {
   default_root_object = "index.html"
   comment             = "${var.app_name} static site"
   price_class         = "PriceClass_100" # US, Canada, Europe only — cheapest tier
-  aliases             = [var.domain_name]
+  aliases             = concat([var.domain_name], var.extra_aliases)
 
   origin {
     domain_name              = var.bucket_domain_name

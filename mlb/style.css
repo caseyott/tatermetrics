@@ -95,6 +95,55 @@ body {
   min-width: 0;
 }
 
+.brandBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  margin-left: -0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+
+.brandBtn:link,
+.brandBtn:visited,
+.brandBtn:hover,
+.brandBtn:active {
+  color: #fff;
+  text-decoration: none;
+}
+
+.brandBtn:hover,
+.brandBtn:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.brandIcon {
+  font-size: 1.5rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.headerDivider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
 .titleIcon {
   font-size: 1.6rem;
   color: #fbbf24;
@@ -351,6 +400,28 @@ body {
   background: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
   color: #fff;
+}
+
+.gridModeRow {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.gridModeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.gridModeLabel input {
+  cursor: pointer;
 }
 
 /* =========================================================
@@ -625,7 +696,7 @@ td.diag {
   background: var(--color-bg);
 }
 
-td.nc {
+td.nc, td.ne {
   color: var(--color-muted);
   font-size: calc(0.75rem + 2px);
 }
@@ -635,12 +706,21 @@ td.magic-num {
   color: var(--color-primary-dark);
 }
 
-/* Day-over-day magic number changes: down 1 = amber, down 2+ (e.g. a
+td.tragic-num {
+  font-weight: 700;
+  color: var(--color-red-text);
+}
+
+td.tragic-num.elim {
+  background: var(--color-red-bg);
+}
+
+/* Day-over-day magic/tragic number changes: down 1 = amber, down 2+ (e.g. a
    doubleheader swept, or a rival losing twice) = red. */
-td.magic-num.mn-down1 {
+td.magic-num.mn-down1, td.tragic-num.mn-down1 {
   background: var(--color-amber-bg);
 }
-td.magic-num.mn-down2 {
+td.magic-num.mn-down2, td.tragic-num.mn-down2 {
   background: var(--color-red-bg);
 }
 
@@ -686,6 +766,11 @@ tr.eliminated td.record-cell {
   background: var(--color-red-bg);
   color: var(--color-muted);
 }
+tr.division-eliminated td.team-cell,
+tr.division-eliminated td.record-cell {
+  background: var(--color-table-head-bg);
+  color: var(--color-muted);
+}
 
 .status-tag {
   display: inline-block;
@@ -700,6 +785,7 @@ tr.eliminated td.record-cell {
 .status-tag.div { background: var(--color-green-text); color: #fff; }
 .status-tag.wc { background: var(--color-amber-text); color: #fff; }
 .status-tag.elim { background: var(--color-red-text); color: #fff; }
+.status-tag.divelim { background: var(--color-muted); color: #fff; }
 
 /* Same-day result badge (W/L) in the team column. Pinned to the right edge
    of td.team-cell (see .team-cell-main) so it lines up down the column. */
@@ -727,15 +813,15 @@ tr.eliminated td.record-cell {
    Selectors match the specificity of the tr.clinched-* record-cell rules
    above (and come after them) so the diff shade wins on rows that are
    also clinched/eliminated. ========================================================= */
-tr td.record-cell.diff-better-1, td.magic-num.diff-better-1 { background: rgba(22, 163, 74, 0.16); }
-tr td.record-cell.diff-better-2, td.magic-num.diff-better-2 { background: rgba(22, 163, 74, 0.30); }
-tr td.record-cell.diff-better-3, td.magic-num.diff-better-3 { background: rgba(22, 163, 74, 0.46); }
-tr td.record-cell.diff-better-4, td.magic-num.diff-better-4 { background: rgba(22, 163, 74, 0.62); }
+tr td.record-cell.diff-better-1, td.magic-num.diff-better-1, td.tragic-num.diff-better-1 { background: rgba(22, 163, 74, 0.16); }
+tr td.record-cell.diff-better-2, td.magic-num.diff-better-2, td.tragic-num.diff-better-2 { background: rgba(22, 163, 74, 0.30); }
+tr td.record-cell.diff-better-3, td.magic-num.diff-better-3, td.tragic-num.diff-better-3 { background: rgba(22, 163, 74, 0.46); }
+tr td.record-cell.diff-better-4, td.magic-num.diff-better-4, td.tragic-num.diff-better-4 { background: rgba(22, 163, 74, 0.62); }
 
-tr td.record-cell.diff-worse-1, td.magic-num.diff-worse-1 { background: rgba(220, 38, 38, 0.16); }
-tr td.record-cell.diff-worse-2, td.magic-num.diff-worse-2 { background: rgba(220, 38, 38, 0.30); }
-tr td.record-cell.diff-worse-3, td.magic-num.diff-worse-3 { background: rgba(220, 38, 38, 0.46); }
-tr td.record-cell.diff-worse-4, td.magic-num.diff-worse-4 { background: rgba(220, 38, 38, 0.62); }
+tr td.record-cell.diff-worse-1, td.magic-num.diff-worse-1, td.tragic-num.diff-worse-1 { background: rgba(220, 38, 38, 0.16); }
+tr td.record-cell.diff-worse-2, td.magic-num.diff-worse-2, td.tragic-num.diff-worse-2 { background: rgba(220, 38, 38, 0.30); }
+tr td.record-cell.diff-worse-3, td.magic-num.diff-worse-3, td.tragic-num.diff-worse-3 { background: rgba(220, 38, 38, 0.46); }
+tr td.record-cell.diff-worse-4, td.magic-num.diff-worse-4, td.tragic-num.diff-worse-4 { background: rgba(220, 38, 38, 0.62); }
 
 td[class*="diff-better-"], td[class*="diff-worse-"] {
   cursor: help;
@@ -791,6 +877,141 @@ td[class*="diff-better-"], td[class*="diff-worse-"] {
 }
 
 /* =========================================================
+   Team detail modal (clinching scenarios)
+   ========================================================= */
+table.standings td.team-cell[data-team-id] {
+  cursor: pointer;
+}
+table.standings td.team-cell[data-team-id]:hover .team-cell-main {
+  text-decoration: underline;
+}
+table.standings td.team-cell[data-team-id]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+.modalOverlay[hidden] { display: none; }
+
+body.modal-open { overflow: hidden; }
+
+.modalCard {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modalCloseBtn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.modalCloseBtn:hover {
+  background: var(--color-bg);
+  color: var(--color-heading);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-right: 2rem;
+}
+
+.modalLogo {
+  height: 44px;
+  width: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.modalTeamName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.modalTeamRecord {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-top: 0.15rem;
+}
+
+.modalScenarios {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.scenarioRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 7px;
+  background: var(--color-bg);
+}
+
+.scenarioLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.scenarioValue {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.scenario-number .scenarioValue { background: var(--color-primary-light); color: var(--color-primary-dark); }
+.scenario-clinched .scenarioValue { background: var(--color-green-bg); color: var(--color-green-text); }
+.scenario-eliminated .scenarioValue { background: var(--color-red-bg); color: var(--color-red-text); }
+.scenario-na .scenarioValue { background: var(--color-table-head-bg); color: var(--color-muted); }
+
+.modalFootnote {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  margin-top: 1rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .modalCard { padding: 1rem 1rem 1.1rem; }
+}
+
+/* =========================================================
    Footer
    ========================================================= */
 .footer {
@@ -809,6 +1030,16 @@ td[class*="diff-better-"], td[class*="diff-worse-"] {
 
 .footer .sep { opacity: 0.5; }
 
+.footerLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
 a, button {
   touch-action: manipulation;
 }
@@ -817,6 +1048,7 @@ a, button {
   .headerInner { padding: 0 0.75rem; gap: 0.5rem; }
   .title { font-size: 0.95rem; }
   .subtitle { display: none; }
+  .brandName { display: none; }
   .livePulseLabel { display: none; }
   .refreshBtn .btnLabel { display: none; }
   .refreshBtn { padding: 0.4rem; }
@@ -834,7 +1066,7 @@ a, button {
   .table-scroll { -webkit-overflow-scrolling: touch; }
   table.standings th, table.standings td { padding: 0.3rem 0.4rem; }
   table.standings td.team-cell, table.standings th.team-cell { min-width: 68px; }
-  th.logo-head, table.standings td.magic-num, table.standings td.nc, table.standings td.diag { min-width: 30px; }
+  th.logo-head, table.standings td.magic-num, table.standings td.tragic-num, table.standings td.nc, table.standings td.ne, table.standings td.diag { min-width: 30px; }
   .team-logo { height: 14px; width: 14px; margin-right: 2px; }
   .team-logo-header { height: 15px; width: 15px; }
   .team-logo-diag { height: 14px; width: 14px; }

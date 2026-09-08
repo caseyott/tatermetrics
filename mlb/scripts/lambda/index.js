@@ -4,12 +4,15 @@
  * Runs daily via EventBridge Scheduler (see
  * ../../../terraform/modules/lambda_snapshot), replacing the old GitHub
  * Actions cron trigger. Uses the same fetch/shape logic as the CLI script
- * (../snapshot.js) via ../lib/standings.js, then uploads straight to S3 and
- * invalidates CloudFront — no /tmp intermediate file needed.
+ * (../snapshot.js) via ../lib/standings.js locally, then uploads straight to
+ * S3 and invalidates CloudFront — no /tmp intermediate file needed.
  *
  * Deployed as a plain zip (this file + ../lib/standings.js) with no
  * node_modules: @aws-sdk/client-s3 and @aws-sdk/client-cloudfront ship
- * built into the Node.js 20.x Lambda runtime.
+ * built into the Node.js 20.x Lambda runtime. The zip (see main.tf) flattens
+ * this file and lib/standings.js into siblings at the zip root — hence the
+ * "./lib/standings" require below rather than "../lib/standings", even
+ * though this file and standings.js are siblings-of-siblings in the repo.
  *
  * Required environment variables:
  *   BUCKET_NAME        - S3 bucket to upload to
@@ -20,7 +23,7 @@
 
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { CloudFrontClient, CreateInvalidationCommand } = require("@aws-sdk/client-cloudfront");
-const { fetchStandingsSnapshot } = require("../lib/standings");
+const { fetchStandingsSnapshot } = require("./lib/standings");
 
 const s3 = new S3Client({});
 const cloudfront = new CloudFrontClient({});

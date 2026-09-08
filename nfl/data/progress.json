@@ -1,0 +1,704 @@
+{
+  "starters": [
+    {
+      "name": "Aaron Rodgers",
+      "team": "PIT",
+      "stats": {
+        "games": 16,
+        "completions": 327,
+        "attempts": 498,
+        "passingYards": 3322,
+        "passingTds": 24,
+        "interceptions": 7,
+        "sacks": 29,
+        "rushingYards": 61,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Joe Flacco",
+      "team": "CIN",
+      "stats": {
+        "games": 13,
+        "completions": 251,
+        "attempts": 416,
+        "passingYards": 2479,
+        "passingTds": 15,
+        "interceptions": 10,
+        "sacks": 18,
+        "rushingYards": 35,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Matthew Stafford",
+      "team": "LA",
+      "stats": {
+        "games": 17,
+        "completions": 388,
+        "attempts": 597,
+        "passingYards": 4707,
+        "passingTds": 46,
+        "interceptions": 8,
+        "sacks": 23,
+        "rushingYards": 1,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Kirk Cousins",
+      "team": "ATL",
+      "stats": {
+        "games": 10,
+        "completions": 166,
+        "attempts": 269,
+        "passingYards": 1721,
+        "passingTds": 10,
+        "interceptions": 5,
+        "sacks": 13,
+        "rushingYards": 7,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Geno Smith",
+      "team": "LV",
+      "stats": {
+        "games": 15,
+        "completions": 302,
+        "attempts": 448,
+        "passingYards": 3025,
+        "passingTds": 19,
+        "interceptions": 17,
+        "sacks": 55,
+        "rushingYards": 109,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Marcus Mariota",
+      "team": "WAS",
+      "stats": {
+        "games": 10,
+        "completions": 139,
+        "attempts": 227,
+        "passingYards": 1695,
+        "passingTds": 10,
+        "interceptions": 7,
+        "sacks": 16,
+        "rushingYards": 297,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Dak Prescott",
+      "team": "DAL",
+      "stats": {
+        "games": 17,
+        "completions": 404,
+        "attempts": 600,
+        "passingYards": 4552,
+        "passingTds": 30,
+        "interceptions": 10,
+        "sacks": 31,
+        "rushingYards": 177,
+        "rushingTds": 2
+      }
+    },
+    {
+      "name": "Jared Goff",
+      "team": "DET",
+      "stats": {
+        "games": 17,
+        "completions": 393,
+        "attempts": 578,
+        "passingYards": 4564,
+        "passingTds": 34,
+        "interceptions": 8,
+        "sacks": 38,
+        "rushingYards": 45,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Jacoby Brissett",
+      "team": "ARI",
+      "stats": {
+        "games": 14,
+        "completions": 315,
+        "attempts": 485,
+        "passingYards": 3366,
+        "passingTds": 23,
+        "interceptions": 8,
+        "sacks": 43,
+        "rushingYards": 168,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Patrick Mahomes",
+      "team": "KC",
+      "stats": {
+        "games": 14,
+        "completions": 315,
+        "attempts": 502,
+        "passingYards": 3587,
+        "passingTds": 22,
+        "interceptions": 11,
+        "sacks": 34,
+        "rushingYards": 422,
+        "rushingTds": 5
+      }
+    },
+    {
+      "name": "Lamar Jackson",
+      "team": "BAL",
+      "stats": {
+        "games": 13,
+        "completions": 192,
+        "attempts": 302,
+        "passingYards": 2549,
+        "passingTds": 21,
+        "interceptions": 7,
+        "sacks": 36,
+        "rushingYards": 349,
+        "rushingTds": 2
+      }
+    },
+    {
+      "name": "Baker Mayfield",
+      "team": "TB",
+      "stats": {
+        "games": 17,
+        "completions": 343,
+        "attempts": 543,
+        "passingYards": 3693,
+        "passingTds": 26,
+        "interceptions": 11,
+        "sacks": 36,
+        "rushingYards": 382,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Josh Allen",
+      "team": "BUF",
+      "stats": {
+        "games": 16,
+        "completions": 319,
+        "attempts": 460,
+        "passingYards": 3668,
+        "passingTds": 25,
+        "interceptions": 10,
+        "sacks": 40,
+        "rushingYards": 579,
+        "rushingTds": 14
+      }
+    },
+    {
+      "name": "Sam Darnold",
+      "team": "SEA",
+      "stats": {
+        "games": 17,
+        "completions": 323,
+        "attempts": 477,
+        "passingYards": 4048,
+        "passingTds": 25,
+        "interceptions": 14,
+        "sacks": 27,
+        "rushingYards": 95,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Daniel Jones",
+      "team": "IND",
+      "stats": {
+        "games": 13,
+        "completions": 261,
+        "attempts": 384,
+        "passingYards": 3101,
+        "passingTds": 19,
+        "interceptions": 8,
+        "sacks": 22,
+        "rushingYards": 164,
+        "rushingTds": 5
+      }
+    },
+    {
+      "name": "Tua Tagovailoa",
+      "team": "MIA",
+      "stats": {
+        "games": 14,
+        "completions": 260,
+        "attempts": 384,
+        "passingYards": 2660,
+        "passingTds": 20,
+        "interceptions": 15,
+        "sacks": 30,
+        "rushingYards": 43,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Jordan Love",
+      "team": "GB",
+      "stats": {
+        "games": 15,
+        "completions": 291,
+        "attempts": 439,
+        "passingYards": 3381,
+        "passingTds": 23,
+        "interceptions": 6,
+        "sacks": 21,
+        "rushingYards": 199,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Justin Herbert",
+      "team": "LAC",
+      "stats": {
+        "games": 16,
+        "completions": 340,
+        "attempts": 512,
+        "passingYards": 3727,
+        "passingTds": 26,
+        "interceptions": 13,
+        "sacks": 54,
+        "rushingYards": 498,
+        "rushingTds": 2
+      }
+    },
+    {
+      "name": "Jalen Hurts",
+      "team": "PHI",
+      "stats": {
+        "games": 16,
+        "completions": 294,
+        "attempts": 454,
+        "passingYards": 3224,
+        "passingTds": 25,
+        "interceptions": 6,
+        "sacks": 32,
+        "rushingYards": 421,
+        "rushingTds": 8
+      }
+    },
+    {
+      "name": "Joe Burrow",
+      "team": "CIN",
+      "stats": {
+        "games": 8,
+        "completions": 173,
+        "attempts": 259,
+        "passingYards": 1809,
+        "passingTds": 17,
+        "interceptions": 5,
+        "sacks": 17,
+        "rushingYards": 41,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Trevor Lawrence",
+      "team": "JAX",
+      "stats": {
+        "games": 17,
+        "completions": 341,
+        "attempts": 560,
+        "passingYards": 4007,
+        "passingTds": 29,
+        "interceptions": 12,
+        "sacks": 41,
+        "rushingYards": 359,
+        "rushingTds": 9
+      }
+    },
+    {
+      "name": "Mac Jones",
+      "team": "SF",
+      "stats": {
+        "games": 11,
+        "completions": 201,
+        "attempts": 289,
+        "passingYards": 2151,
+        "passingTds": 13,
+        "interceptions": 6,
+        "sacks": 16,
+        "rushingYards": 60,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Brock Purdy",
+      "team": "SF",
+      "stats": {
+        "games": 9,
+        "completions": 197,
+        "attempts": 284,
+        "passingYards": 2167,
+        "passingTds": 20,
+        "interceptions": 10,
+        "sacks": 11,
+        "rushingYards": 147,
+        "rushingTds": 3
+      }
+    },
+    {
+      "name": "Bryce Young",
+      "team": "CAR",
+      "stats": {
+        "games": 16,
+        "completions": 304,
+        "attempts": 478,
+        "passingYards": 3011,
+        "passingTds": 23,
+        "interceptions": 11,
+        "sacks": 27,
+        "rushingYards": 216,
+        "rushingTds": 2
+      }
+    },
+    {
+      "name": "C.J. Stroud",
+      "team": "HOU",
+      "stats": {
+        "games": 14,
+        "completions": 273,
+        "attempts": 423,
+        "passingYards": 3041,
+        "passingTds": 19,
+        "interceptions": 8,
+        "sacks": 23,
+        "rushingYards": 209,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Spencer Rattler",
+      "team": "NO",
+      "stats": {
+        "games": 9,
+        "completions": 174,
+        "attempts": 257,
+        "passingYards": 1586,
+        "passingTds": 8,
+        "interceptions": 5,
+        "sacks": 18,
+        "rushingYards": 167,
+        "rushingTds": 0
+      }
+    },
+    {
+      "name": "Bo Nix",
+      "team": "DEN",
+      "stats": {
+        "games": 17,
+        "completions": 388,
+        "attempts": 612,
+        "passingYards": 3931,
+        "passingTds": 25,
+        "interceptions": 11,
+        "sacks": 22,
+        "rushingYards": 356,
+        "rushingTds": 5
+      }
+    },
+    {
+      "name": "Drake Maye",
+      "team": "NE",
+      "stats": {
+        "games": 17,
+        "completions": 354,
+        "attempts": 492,
+        "passingYards": 4394,
+        "passingTds": 31,
+        "interceptions": 8,
+        "sacks": 47,
+        "rushingYards": 450,
+        "rushingTds": 4
+      }
+    },
+    {
+      "name": "Michael Penix Jr.",
+      "team": "ATL",
+      "stats": {
+        "games": 9,
+        "completions": 166,
+        "attempts": 276,
+        "passingYards": 1982,
+        "passingTds": 9,
+        "interceptions": 3,
+        "sacks": 13,
+        "rushingYards": 70,
+        "rushingTds": 1
+      }
+    },
+    {
+      "name": "Caleb Williams",
+      "team": "CHI",
+      "stats": {
+        "games": 17,
+        "completions": 330,
+        "attempts": 568,
+        "passingYards": 3942,
+        "passingTds": 27,
+        "interceptions": 7,
+        "sacks": 24,
+        "rushingYards": 388,
+        "rushingTds": 3
+      }
+    },
+    {
+      "name": "J.J. McCarthy",
+      "team": "MIN",
+      "stats": {
+        "games": 10,
+        "completions": 140,
+        "attempts": 243,
+        "passingYards": 1632,
+        "passingTds": 11,
+        "interceptions": 12,
+        "sacks": 27,
+        "rushingYards": 181,
+        "rushingTds": 4
+      }
+    },
+    {
+      "name": "Cam Ward",
+      "team": "TEN",
+      "stats": {
+        "games": 17,
+        "completions": 323,
+        "attempts": 540,
+        "passingYards": 3169,
+        "passingTds": 15,
+        "interceptions": 7,
+        "sacks": 55,
+        "rushingYards": 159,
+        "rushingTds": 2
+      }
+    },
+    {
+      "name": "Jaxson Dart",
+      "team": "NYG",
+      "stats": {
+        "games": 14,
+        "completions": 216,
+        "attempts": 339,
+        "passingYards": 2272,
+        "passingTds": 15,
+        "interceptions": 5,
+        "sacks": 35,
+        "rushingYards": 487,
+        "rushingTds": 9
+      }
+    },
+    {
+      "name": "Tyler Shough",
+      "team": "NO",
+      "stats": {
+        "games": 11,
+        "completions": 221,
+        "attempts": 327,
+        "passingYards": 2384,
+        "passingTds": 10,
+        "interceptions": 6,
+        "sacks": 31,
+        "rushingYards": 186,
+        "rushingTds": 3
+      }
+    }
+  ],
+  "done": [
+    {
+      "name": "Dak Prescott",
+      "team": "DAL",
+      "stats": {
+        "games": 17,
+        "completions": 404,
+        "attempts": 600,
+        "passingYards": 4552,
+        "passingTds": 30,
+        "interceptions": 10,
+        "sacks": 31,
+        "rushingYards": 177,
+        "rushingTds": 2
+      },
+      "salary": {
+        "capHit": 50527250,
+        "capPctOfLeagueCap": 18.1
+      }
+    },
+    {
+      "name": "Josh Allen",
+      "team": "BUF",
+      "stats": {
+        "games": 16,
+        "completions": 319,
+        "attempts": 460,
+        "passingYards": 3668,
+        "passingTds": 25,
+        "interceptions": 10,
+        "sacks": 40,
+        "rushingYards": 579,
+        "rushingTds": 14
+      },
+      "salary": {
+        "capHit": 36338431,
+        "capPctOfLeagueCap": 13.02
+      }
+    },
+    {
+      "name": "Jalen Hurts",
+      "team": "PHI",
+      "stats": {
+        "games": 16,
+        "completions": 294,
+        "attempts": 454,
+        "passingYards": 3224,
+        "passingTds": 25,
+        "interceptions": 6,
+        "sacks": 32,
+        "rushingYards": 421,
+        "rushingTds": 8
+      },
+      "salary": {
+        "capHit": 21877360,
+        "capPctOfLeagueCap": 7.84
+      }
+    },
+    {
+      "name": "Bo Nix",
+      "team": "DEN",
+      "stats": {
+        "games": 17,
+        "completions": 388,
+        "attempts": 612,
+        "passingYards": 3931,
+        "passingTds": 25,
+        "interceptions": 11,
+        "sacks": 22,
+        "rushingYards": 356,
+        "rushingTds": 5
+      },
+      "salary": {
+        "capHit": 4238770,
+        "capPctOfLeagueCap": 1.52
+      }
+    },
+    {
+      "name": "Aaron Rodgers",
+      "team": "PIT",
+      "stats": {
+        "games": 16,
+        "completions": 327,
+        "attempts": 498,
+        "passingYards": 3322,
+        "passingTds": 24,
+        "interceptions": 7,
+        "sacks": 29,
+        "rushingYards": 61,
+        "rushingTds": 1
+      },
+      "excludedReason": "no_cap_hit_row_for_year"
+    },
+    {
+      "name": "Joe Flacco",
+      "team": "CIN",
+      "stats": {
+        "games": 13,
+        "completions": 251,
+        "attempts": 416,
+        "passingYards": 2479,
+        "passingTds": 15,
+        "interceptions": 10,
+        "sacks": 18,
+        "rushingYards": 35,
+        "rushingTds": 1
+      },
+      "excludedReason": "no_cap_hit_row_for_year"
+    },
+    {
+      "name": "Matthew Stafford",
+      "team": "LA",
+      "stats": {
+        "games": 17,
+        "completions": 388,
+        "attempts": 597,
+        "passingYards": 4707,
+        "passingTds": 46,
+        "interceptions": 8,
+        "sacks": 23,
+        "rushingYards": 1,
+        "rushingTds": 0
+      },
+      "excludedReason": "no_cap_hit_row_for_year"
+    },
+    {
+      "name": "Kirk Cousins",
+      "team": "ATL",
+      "stats": {
+        "games": 10,
+        "completions": 166,
+        "attempts": 269,
+        "passingYards": 1721,
+        "passingTds": 10,
+        "interceptions": 5,
+        "sacks": 13,
+        "rushingYards": 7,
+        "rushingTds": 1
+      },
+      "excludedReason": "no_cap_hit_row_for_year"
+    },
+    {
+      "name": "Geno Smith",
+      "team": "LV",
+      "stats": {
+        "games": 15,
+        "completions": 302,
+        "attempts": 448,
+        "passingYards": 3025,
+        "passingTds": 19,
+        "interceptions": 17,
+        "sacks": 55,
+        "rushingYards": 109,
+        "rushingTds": 0
+      },
+      "excludedReason": "no_cap_hit_row_for_year"
+    },
+    {
+      "name": "Marcus Mariota",
+      "team": "WAS",
+      "stats": {
+        "games": 10,
+        "completions": 139,
+        "attempts": 227,
+        "passingYards": 1695,
+        "passingTds": 10,
+        "interceptions": 7,
+        "sacks": 16,
+        "rushingYards": 297,
+        "rushingTds": 1
+      },
+      "excludedReason": "no_cap_hit_row_for_year"
+    },
+    {
+      "name": "Jared Goff",
+      "team": "DET",
+      "stats": {
+        "games": 17,
+        "completions": 393,
+        "attempts": 578,
+        "passingYards": 4564,
+        "passingTds": 34,
+        "interceptions": 8,
+        "sacks": 38,
+        "rushingYards": 45,
+        "rushingTds": 0
+      },
+      "excludedReason": "not_under_contract_that_year"
+    }
+  ]
+}

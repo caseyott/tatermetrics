@@ -26,10 +26,10 @@ variable "domain_name" {
   default     = "tatermetrics.tatertech.net"
 }
 
-variable "acm_certificate_arn" {
-  description = "ARN of the existing ACM wildcard cert for *.tatertech.net in us-east-1 (shared with curling.tatertech.net)."
+variable "custom_domain_name" {
+  description = "Apex custom domain for the site, registered at Cloudflare with DNS delegated to a new Route 53 hosted zone created by this config (see route53_com.tf). The site is served at both this domain and domain_name."
   type        = string
-  default     = "arn:aws:acm:us-east-1:461752900329:certificate/fd48e251-fc42-4e16-85b0-68f3cc581ac0"
+  default     = "tatermetrics.com"
 }
 
 variable "github_repo" {
