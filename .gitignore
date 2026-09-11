@@ -18,3 +18,5 @@ override.tf.json
 .env
 *.env
 nfl/.env
+*.tfvars
+!*.tfvars.example
