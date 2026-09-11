@@ -168,11 +168,14 @@ async function fetchAllStandings() {
 /* =========================================================
    Season-series tiebreakers
    MLB's first tiebreaker for a season-ending tie between two teams is their
-   head-to-head record — but only once every one of their scheduled meetings
-   has been played, since a game still to come could flip the series either
-   way. Once a team has clinched that season series, it only needs to force
-   (at worst) a tie in the standings against that rival — its magic number
-   drops by 1 versus the standard "must finish strictly ahead" formula.
+   head-to-head record. A team clinches that season series as soon as its
+   head-to-head win total can no longer be caught — either every meeting has
+   been played and it leads, or enough have been played that its lead
+   exceeds however many meetings remain (so even losing all of them still
+   leaves the rival behind). Once a team has clinched the season series, it
+   only needs to force (at worst) a tie in the standings against that rival —
+   its magic number drops by 1 versus the standard "must finish strictly
+   ahead" formula.
    ========================================================= */
 
 function seriesKey(idA, idB) {
@@ -255,25 +258,32 @@ function buildSeasonSeriesMap(games, cutoffDate) {
   return map;
 }
 
-/** Which of idA/idB currently holds the completed season-series tiebreaker
- *  over the other — null if any of their games remain unplayed, or if they
- *  split the series evenly (a genuine tie, which falls to a later tiebreaker
- *  this site doesn't model). */
+/** Which of idA/idB currently holds the season-series tiebreaker over the
+ *  other — null if the outcome isn't locked in yet, or if it ends up split
+ *  evenly (a genuine tie, which falls to a later tiebreaker this site
+ *  doesn't model). A team is credited as soon as its head-to-head lead is
+ *  larger than the number of meetings still to be played, so this can fire
+ *  before every game between the two teams has actually happened — e.g. a
+ *  team up 7-4 with 2 head-to-head games left has clinched, since the rival
+ *  can reach at best 6. */
 function seasonSeriesWinner(seriesMap, idA, idB) {
   const rec = seriesMap && seriesMap[seriesKey(idA, idB)];
-  if (!rec || rec.total === 0 || rec.final < rec.total) return null;
+  if (!rec || rec.total === 0) return null;
   const winsA = rec.wins[idA] || 0;
   const winsB = rec.wins[idB] || 0;
-  if (winsA === winsB) return null;
-  return winsA > winsB ? idA : idB;
+  const remaining = rec.total - rec.final;
+  if (winsA > winsB + remaining) return idA;
+  if (winsB > winsA + remaining) return idB;
+  return null;
 }
 
 /** Magic number for `a` to eliminate `b` from finishing ahead of them:
  *  standard formula requires `a` to finish strictly ahead (the +1). If `a`
- *  has already clinched the completed season series over `b`, `a` only needs
- *  to force a tie in the loss column, since `a` would win that tie — so the
- *  +1 is dropped. `seriesMap` is optional; omitting it (or passing one where
- *  the series isn't decided) falls back to the standard formula. */
+ *  has already clinched the season series over `b` (see seasonSeriesWinner
+ *  above), `a` only needs to force a tie in the loss column, since `a` would
+ *  win that tie — so the +1 is dropped. `seriesMap` is optional; omitting it
+ *  (or passing one where the series isn't decided) falls back to the
+ *  standard formula. */
 function magicNumber(a, b, seriesMap) {
   const base = SEASON_TOTAL_GAMES - a.wins - b.losses;
   const ownsTiebreaker = seasonSeriesWinner(seriesMap, a.id, b.id) === a.id;
@@ -399,17 +409,25 @@ function computeScenarios(team, allTeams, seriesMap) {
   const wc3MN = groupMagicNumber(team, pool, 3, seriesMap);
   const naReason = `N/A — leading ${team.divisionName}`;
 
-  // Overall postseason-berth number: a team is in October as soon as EITHER
-  // path is locked up — winning the division, or holding a top-3 spot in the
-  // wild-card pool. That second path uses the real wild-card pool (unlike
-  // `pool` above, which is zeroed out for division leaders purely so the
-  // individual WC-slot rows read "N/A" below) so a leader's berth number can
-  // reflect the safety net of still backing into a wild card if the division
-  // lead slips. `clinched`/`divisionChamp` are MLB's own official postseason
-  // flags, same as the Division row reuses divisionChamp/eliminationNumber.
-  const berthPool = wildCardPool(team, allTeams).filter((t) => t.id !== team.id);
-  const berthWcMN = groupMagicNumber(team, berthPool, 3, seriesMap);
-  const berthMN = Math.min(divisionMN, berthWcMN);
+  // Overall postseason-berth number: a team is in October as soon as it can
+  // no longer finish outside the league's top 6 (3 division winners + 3 wild
+  // cards) — i.e. it can't be caught by more than 5 of its 14 leaguemates.
+  // That's the same groupMagicNumber() used for every other scenario row,
+  // just with the whole league as the rival pool and rank=6.
+  //
+  // This used to be computed as min(divisionMN, top-3-of-the-non-leader-pool)
+  // — "clinch the division OR clinch a wild-card spot" — which double-counts
+  // the division-leader pool's own toughness: a comfortable division leader
+  // (like a team up big in its division) got its berth number capped by how
+  // close the *3rd*-best wild-card contender was, even though a leader that
+  // safe would fall back on a wild card long before 3 other teams catch it.
+  // The actual bottleneck for a leader that far ahead is whichever single
+  // rival sits 6th overall (the first team currently out of the playoff
+  // picture) — using the full-league rank=6 pool fixes that. `clinched`/
+  // `divisionChamp` below are MLB's own official postseason flags, same as
+  // the Division row reuses divisionChamp/eliminationNumber.
+  const leagueRivals = allTeams.filter((t) => t.leagueId === team.leagueId && t.id !== team.id);
+  const berthMN = groupMagicNumber(team, leagueRivals, 6, seriesMap);
   const berthEliminated = divEliminated && wcEliminated;
   const berthClinched = team.divisionChamp || team.clinched;
 
