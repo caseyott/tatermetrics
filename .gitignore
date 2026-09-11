@@ -13,3 +13,8 @@ override.tf.json
 
 # OS
 .DS_Store
+
+# Secrets
+.env
+*.env
+nfl/.env

@@ -56,6 +56,23 @@ The season defaults to whatever MLB considers current, so no yearly code change 
 
 Magic numbers are computed locally using the standard formula: `163 − (row team's wins) − (column team's losses)`, based on a 162-game season. Division/wild-card names, IDs, and team abbreviations are hardcoded in `app.js` since the standings endpoint doesn't return division display names.
 
+## Local development
+
+No build step, no dependencies — but the page does need to be served over `http://`, not opened as a `file://` URL: browsers block the `fetch()` calls this page makes (both to `data/*.json` and, in some browsers, to the MLB API itself) when the page's own origin is `file://`.
+
+From the repo root (so the header's "TaterMetrics home" link and other sport pages also resolve correctly):
+
+```
+cd tatermetrics
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000/mlb/`. Any static server works the same way, e.g. `npx serve .` or VS Code's "Live Server" extension — just make sure it's rooted at the repo root, not `mlb/` itself.
+
+To test a change to `app.js`, `index.html`, or `style.css`: save the file and hard-refresh the browser tab (`Cmd+Shift+R`) to bypass any caching. There's no compile/watch step to run.
+
+To check clinching-scenario math specifically (like the playoff-berth fix above): click any team's cell in either grid to open its detail modal, which lists all 7 scenario numbers computed by `computeScenarios()` in `app.js`. Since `app.js` runs its DOM-wiring code (`initTabs`, `loadAndRender`, etc.) as soon as it loads, its functions can't be `require()`'d directly in Node for a quick console check — copy just the pure functions you want to test (e.g. `magicNumber`/`groupMagicNumber`) into a scratch `.js` file and run it with `node` instead.
+
 ## Deploying
 
 Static files, no build step. Drop this whole `mlb/` folder anywhere it can be served over HTTP(S) — e.g. as a path under `tatermetrics.tatertech.net/mlb/`. Nothing needs to be run server-side; every page load fetches fresh data from MLB directly in the browser.
