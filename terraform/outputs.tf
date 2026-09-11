@@ -20,6 +20,11 @@ output "cloudflare_dns_records_created" {
   ]
 }
 
+output "cloudflare_zone_id" {
+  description = "Cloudflare zone ID for tatermetrics.com — needed as CLOUDFLARE_ZONE_ID by scripts/purge-cloudflare-cache.sh after a deploy, since the apex/www records are proxied and cache static assets at Cloudflare's edge independently of CloudFront."
+  value       = local.cloudflare_zone_id
+}
+
 output "acm_certificate_arn" {
   description = "ARN of the ACM certificate covering tatermetrics.com, www.tatermetrics.com, and tatermetrics.tatertech.net."
   value       = aws_acm_certificate_validation.site.certificate_arn

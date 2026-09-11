@@ -277,6 +277,36 @@ function seasonSeriesWinner(seriesMap, idA, idB) {
   return null;
 }
 
+/** Human-readable head-to-head record for the (rowTeam, colTeam) pair, used
+ *  as every grid cell's tooltip. Two lines: the record itself — e.g.
+ *  "Season Series: (8-4) Brewers", with a trailing "*" once the leader has
+ *  clinched the season series outright (see seasonSeriesWinner — the other
+ *  team can no longer catch up, vs. merely trailing so far) — followed by
+ *  "N to play" whenever games between the two remain on the schedule.
+ *  Always reports rowTeam's win total first so it reads naturally against
+ *  the row it's in. */
+function seasonSeriesTitle(seriesMap, rowTeam, colTeam) {
+  const rec = seriesMap && seriesMap[seriesKey(rowTeam.id, colTeam.id)];
+  const rowWins = rec ? rec.wins[rowTeam.id] || 0 : 0;
+  const colWins = rec ? rec.wins[colTeam.id] || 0 : 0;
+  const remaining = rec ? rec.total - rec.final : 0;
+
+  let recordLine;
+  if (!rec || rec.final === 0) {
+    recordLine = "Season Series: no games played yet";
+  } else if (rowWins === colWins) {
+    recordLine = `Season Series: (${rowWins}-${colWins}) tied`;
+  } else {
+    const leaderIsRow = rowWins > colWins;
+    const leaderTeam = leaderIsRow ? rowTeam : colTeam;
+    const otherTeam = leaderIsRow ? colTeam : rowTeam;
+    const clinched = seasonSeriesWinner(seriesMap, leaderTeam.id, otherTeam.id) === leaderTeam.id;
+    recordLine = `Season Series: (${rowWins}-${colWins}) ${leaderTeam.shortName}${clinched ? "*" : ""}`;
+  }
+
+  return remaining > 0 ? `${recordLine}\n${remaining} to play` : recordLine;
+}
+
 /** Magic number for `a` to eliminate `b` from finishing ahead of them:
  *  standard formula requires `a` to finish strictly ahead (the +1). If `a`
  *  has already clinched the season series over `b` (see seasonSeriesWinner
@@ -826,6 +856,24 @@ function buildDivisionOrder(divisionTeams) {
   return [...divisionTeams].sort((a, b) => a.divisionRank - b.divisionRank);
 }
 
+/** Adds (or merges into) the <td> tag's own `title` attribute — deliberately
+ *  scoped to just the opening tag so it never touches a title already sitting
+ *  on a nested element, like the mn-arrow badge's "down since this morning's
+ *  snapshot" tooltip. Used to attach the season-series record (see
+ *  seasonSeriesTitle above) to every grid cell without disturbing whatever
+ *  diff/badge tooltip that cell already has. */
+function setCellTitle(td, title) {
+  if (!title) return td;
+  const m = td.match(/^<td([^>]*)>/);
+  if (!m) return td;
+  const attrs = m[1];
+  const titleMatch = attrs.match(/title="([^"]*)"/);
+  const newAttrs = titleMatch
+    ? attrs.replace(/title="([^"]*)"/, `title="${titleMatch[1]} — ${title}"`)
+    : `${attrs} title="${title}"`;
+  return `<td${newAttrs}>${td.slice(m[0].length)}`;
+}
+
 /** Renders one grid cell for the pair (rowTeam, colTeam). In magic-number
  *  mode (tragic=false), a cell only has a number when rowTeam currently
  *  leads colTeam — the number is rowTeam's own magic number over colTeam.
@@ -835,25 +883,30 @@ function buildDivisionOrder(divisionTeams) {
  *  just colTeam's magic number over rowTeam (magicNumber(colTeam, rowTeam)),
  *  i.e. the exact value that would appear in this pair's OTHER cell in magic
  *  mode. Flipping the toggle never changes any underlying math, only which
- *  of the two directions a given cell reports. */
+ *  of the two directions a given cell reports.
+ *
+ *  Every non-diagonal cell also gets the season-series record between the
+ *  two teams as its tooltip (see seasonSeriesTitle), merged onto whatever
+ *  diff/badge title the cell already carries. */
 function renderMatrixCell(rowTeam, colTeam, prevTeams, compare, seriesMap, tragic) {
   if (rowTeam.id === colTeam.id) {
     return `<td class="diag"><img class="team-logo-diag" src="${logoUrl(rowTeam)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"></td>`;
   }
+  const seriesTitle = seasonSeriesTitle(seriesMap, rowTeam, colTeam);
   const leader = tragic ? colTeam : rowTeam;
   const trailer = tragic ? rowTeam : colTeam;
   if (!isAheadOf(leader, trailer)) {
-    return tragic ? '<td class="ne">NE</td>' : '<td class="nc">NC</td>';
+    return setCellTitle(tragic ? '<td class="ne">NE</td>' : '<td class="nc">NC</td>', seriesTitle);
   }
   const cellCls = tragic ? "tragic-num" : "magic-num";
   const num = magicNumber(leader, trailer, seriesMap);
   if (num <= 0) {
-    return tragic ? `<td class="${cellCls} elim">E</td>` : `<td class="${cellCls}">&ndash;</td>`;
+    return setCellTitle(tragic ? `<td class="${cellCls} elim">E</td>` : `<td class="${cellCls}">&ndash;</td>`, seriesTitle);
   }
   const statLabel = tragic ? "Elimination number" : "Magic number";
   if (compare) {
     const delta = magicNumberDelta(leader, trailer, compare.teams, seriesMap);
-    return diffTd(cellCls, num, delta, compare.label, statLabel);
+    return setCellTitle(diffTd(cellCls, num, delta, compare.label, statLabel), seriesTitle);
   }
   const delta = magicNumberDelta(leader, trailer, prevTeams, seriesMap);
   let cls = cellCls;
@@ -865,7 +918,7 @@ function renderMatrixCell(rowTeam, colTeam, prevTeams, compare, seriesMap, tragi
     cls += " mn-down2";
     badge = `<span class="mn-arrow mn-arrow-double" title="down ${delta} since this morning's snapshot (doubleheader?)"><i class="ti ti-chevron-down" aria-hidden="true"></i><i class="ti ti-chevron-down" aria-hidden="true"></i></span>`;
   }
-  return `<td class="${cls}">${num}${badge}</td>`;
+  return setCellTitle(`<td class="${cls}">${num}${badge}</td>`, seriesTitle);
 }
 
 function resultBadge(team, resultsMap) {

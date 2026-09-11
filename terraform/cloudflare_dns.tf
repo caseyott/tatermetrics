@@ -14,6 +14,21 @@
 # that already serves tatermetrics.tatertech.net (see acm.tf for the
 # certificate covering all three names, and main.tf for how they're wired
 # into one CloudFront distribution).
+#
+# Both records are proxied (orange cloud) through Cloudflare rather than
+# DNS-only, so tatermetrics.com gets Cloudflare's edge in front of it
+# (WAF/DDoS protection, etc.) — this was flipped on manually in the
+# dashboard on 2026-09-11 and is now codified here so a future `terraform
+# apply` doesn't revert it back to DNS-only.
+#
+# Trade-off: with the proxy on, Cloudflare independently caches static file
+# extensions (.js, .json, .css, ...) at its own edge for hours by default —
+# separately from CloudFront's cache. A CloudFront invalidation alone will
+# NOT bust that layer; deploys that touch app.js/style.css/data/*.json need
+# a Cloudflare cache purge too (dashboard: Caching -> Configuration -> Purge
+# Everything, or the /zones/:id/purge_cache API) or visitors on
+# tatermetrics.com can keep seeing stale files for hours after a deploy that
+# already invalidated CloudFront.
 ################################################################################
 
 variable "cloudflare_api_token" {
@@ -36,8 +51,8 @@ resource "cloudflare_dns_record" "apex" {
   name    = "@"
   type    = "CNAME"
   content = module.cloudfront.cloudfront_domain_name
-  ttl     = 300
-  proxied = false # DNS-only: CloudFront serves the site and terminates TLS, not Cloudflare's proxy.
+  ttl     = 1    # Cloudflare requires TTL "Automatic" (1) for a proxied record; it ignores this value anyway.
+  proxied = true # Proxied through Cloudflare's edge (WAF/DDoS protection) — see the file header for the caching trade-off this brings.
   comment = "Apex -> CloudFront (tatermetrics static site). CNAME flattening applies automatically at the apex."
 }
 
@@ -46,7 +61,7 @@ resource "cloudflare_dns_record" "www" {
   name    = "www"
   type    = "CNAME"
   content = module.cloudfront.cloudfront_domain_name
-  ttl     = 300
-  proxied = false
+  ttl     = 1
+  proxied = true
   comment = "www -> CloudFront (tatermetrics static site)."
 }
